@@ -23,55 +23,99 @@ public class Board {
 
     private void displayPips(int[] board) {
         String output = "";
-        for (int i = 13; i <= 25; i++){
-            if(board[i] > 0){
-                output +="O"+board[i];
-            }
-            else{
-                if(board[i] == 0){
-                    output += "|   ";
+        for(int j =0; j < findMaxAbsoluteValue(board); j++){
+            for (int i = 13; i <= 25; i++){
+                if(board[i] > 0){
+                    if (j < Math.abs(board[i])){
+                        output +="o ";
+                    }
+                    else{
+                        output +=" ";
+                    }
                 }
                 else{
-                    output += "X"+Math.abs(board[i]);
+                    if(board[i] == 0){
+                        if(j == 0){
+                            output += "|   ";
+                        }
+                        else{
+                            output += "    ";
+                        }
+                    }
+                    else{
+                        if (j < Math.abs(board[i])){
+                            output +="x ";
+                        }
+                        else{
+                            output +="  ";
+                        }
+                    }
                 }
-            }
-            if (Math.abs(board[i]) > 9){
-                output += " ";
-            }
-            else{
-                if(Math.abs(board[i]) < 10 && board[i] != 0){
-                    output += "  ";
+                if (Math.abs(board[i]) > 9){
+                    output += " ";
                 }
-            }
-            if (i == 18){
-                output += "   ";
+                else{
+                    if(Math.abs(board[i]) < 10 && board[i] != 0){
+                        output += "  ";
+                    }
+                }
+                if (i == 18){
+                    output += "   ";
+                }
+                else{
+                    if(i == 25){
+                        output += "\n";
+                    }
+                }
             }
         }
         System.out.println(output);
-        System.out.println();
         output = "";
-        for (int i = 12; i >= 0; i--){
-            if(board[i] > 0){
-                output +="O"+board[i];
-            }
-            else{
-                if(board[i] == 0){
-                    output += "|   ";
+        for(int j =0; j < findMaxAbsoluteValue(board); j++) {
+            for (int i = 12; i >= 0; i--){
+                if(board[i] > 0){
+                    if (j >= findMaxAbsoluteValue(board) - Math.abs(board[i])){
+                        output +="o ";
+                    }
+                    else{
+                        output +="  ";
+                    }
                 }
                 else{
-                    output += "X"+Math.abs(board[i]);
+                    if(board[i] == 0){
+                        if(j == findMaxAbsoluteValue(board) - 1){
+                            output += "|   ";
+                        }
+                        else{
+                            output += "    ";
+                        }
+                    }
+                    else{
+                        if (j >= findMaxAbsoluteValue(board) - Math.abs(board[i])){
+                            output +="x ";
+                        }
+                        else{
+                            output +="  ";
+                        }
+
+                    }
                 }
-            }
-            if (Math.abs(board[i]) > 9){
-                output += " ";
-            }
-            else{
-                if(Math.abs(board[i]) < 10 && board[i] != 0){
-                    output += "  ";
+                if (Math.abs(board[i]) > 9){
+                    output += " ";
                 }
-            }
-            if (i == 7){
-                output += "   ";
+                else{
+                    if(Math.abs(board[i]) < 10 && board[i] != 0){
+                        output += "  ";
+                    }
+                }
+                if (i == 7){
+                    output += "   ";
+                }
+                else{
+                    if(i == 0 && j != findMaxAbsoluteValue(board) - 1){
+                        output += "\n";
+                    }
+                }
             }
         }
         System.out.println(output);
@@ -79,5 +123,16 @@ public class Board {
 
     public int[] getBoard() {
         return board;
+    }
+
+    public static int findMaxAbsoluteValue(int[] board) {
+        int maxAbsolute = Math.abs(board[0]);
+        for (int i = 1; i < board.length; i++) {
+            int absoluteValue = Math.abs(board[i]);
+            if (absoluteValue > maxAbsolute) {
+                maxAbsolute = absoluteValue;
+            }
+        }
+        return maxAbsolute;
     }
 }
