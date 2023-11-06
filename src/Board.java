@@ -30,12 +30,12 @@ public class Board {
                         output +="o ";
                     }
                     else{
-                        output +=" ";
+                        output +="  ";
                     }
                 }
                 else{
                     if(board[i] == 0){
-                        if(j == 0){
+                        if(j == 0 && i != 25){
                             output += "|   ";
                         }
                         else{
@@ -83,7 +83,7 @@ public class Board {
                 }
                 else{
                     if(board[i] == 0){
-                        if(j == findMaxAbsoluteValue(board) - 1){
+                        if(j == findMaxAbsoluteValue(board) - 1 && i != 0){
                             output += "|   ";
                         }
                         else{
@@ -121,8 +121,12 @@ public class Board {
         System.out.println(output);
     }
 
-    public int[] getBoard() {
-        return board;
+    public int getBoard(int index) {
+        return board[index];
+    }
+
+    public void setBoard(int index, int value){
+        board[index] =value;
     }
 
     public static int findMaxAbsoluteValue(int[] board) {
@@ -135,4 +139,5 @@ public class Board {
         }
         return maxAbsolute;
     }
+
 }
