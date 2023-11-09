@@ -31,6 +31,7 @@ public class Game {
                 System.out.print("Enter command:");
                 String command = scanner.nextLine().toUpperCase();
                 if (command.equalsIgnoreCase("QUIT")) {
+                    System.out.println(temp.getName() + " quit the game.");
                     break;
                 } else if (command.equalsIgnoreCase("ROLL")) {
                     dice.roll();
@@ -38,28 +39,52 @@ public class Game {
                 } else if (command.equalsIgnoreCase("HINT")){
                     displayCommands();
                 } else if (command.equalsIgnoreCase("MOVE")){
-                    int index;
-                    while(true){
-                        displayMoves(temp, dice, board);
-                        String choice = scanner.nextLine().toUpperCase();
-                        if(choice.length() != 1) {
-                            System.out.println("Invalid command");
-                        }
-                        else{
-                            index = (int)choice.charAt(0) - 65;
-                            if(index < moves.size()){
-                                break;
-                            }
-                            else{
-                                System.out.println("Invalid command");
-                            }
+                    //从dice中取出数目，存入arraylist
+                    ArrayList<Integer> dices = new ArrayList<Integer>();
+                    int dice1 = dice.getDice1();
+                    int dice2 = dice.getDice2();
+                    if(dice1 == dice2){
+                        //当double的情况发生
+                        for(int i = 0; i < 4; i++){
+                            dices.add(dice1);
                         }
                     }
-                    Direction move = moves.get(index);
-                    //System.out.println(move.getStart() + "-" +move.getDestination());
-                    movePiece(board, move.getStart(), move.getDestination());
-                    board.displayBoard();
-                    moves.clear();
+                    else{
+                        dices.add(dice1);
+                        dices.add(dice2);
+                    }
+                    while(dices.size() > 0){
+                        //循环，让用户用掉所有的骰子
+                        boolean flag = true;
+                        int index = -1;
+                        while(true){
+                            //循环，展示所有可能存在的移动，直到读入合法的命令
+                            displayMoves(temp, dices, board);
+                            String choice = scanner.nextLine().toUpperCase();
+                            if(choice.length() != 1) {
+                                System.out.println("Invalid command");
+                            }
+                            else{
+                                index = (int)choice.charAt(0) - 65;
+                                if(index < moves.size() && index > -1){
+                                    break;
+                                }
+                                else{
+                                    System.out.println("Invalid command");
+                                }
+                            }
+                        }
+                        //获取index，读取 起点 - 目的地 的Direction
+                        Direction move = moves.get(index);
+                        //System.out.println(move.getStart() + "-" +move.getDestination());
+                        //移动棋子，并且从dices删除用过的骰子
+                        movePiece(board, move.getStart(), move.getDestination());
+                        //删除原有的选项，下一次循环重新检测可能的移动
+                        moves.clear();
+                        board.displayBoard();
+                        removeInteger(dices,move.getStart() - move.getDestination());
+                        //如果dices为空，离开循环
+                    }
                     break;
                 } else{
                     System.out.println("Invalid command.");
@@ -87,27 +112,25 @@ public class Game {
         System.out.println("All commands:\n1. Roll\n2. Quit\n3. Hint");
     }
 
-    private void displayMoves(Player player, Dice dice, Board board){
-        System.out.println(player.getPiece() + " to play " + dice.getDice1() + "-" + dice.getDice2() + ". Select from:");
-        int[] dices;
-        int dice1 = dice.getDice1();
-        int dice2 = dice.getDice2();
-        if (dice1 == dice2) {
-            dices = new int[1];
-            dices[0] = dice1;
-        } else {
-            dices = new int[2];
-            dices[0] = dice1;
-            dices[1] = dice2;
+    private void displayMoves(Player player, ArrayList<Integer> dices, Board board){
+        System.out.print(player.getPiece() + " to play " + dices.get(0));
+        for (int i = 1; i < dices.size(); i++){
+            System.out.print("-" + dices.get(i));
         }
+        System.out.print(". Select from:\n");
         int count = 0;
+        //如果棋子是x
         if (player.getPiece() == "x"){
-            for (int i = 0; i < dices.length; i++){
+            //遍历所有的骰子
+            for (int i = 0; i < dices.size(); i++){
+                //按照x行走顺序
                 for (int j = 0; j < 26; j++){
-                    if (board.getBoard(j) < 0 && j + dices[i] < 26 ){
-                        if (board.getBoard(j + dices[i]) < 2){
-                            System.out.println((char)(65 + count) + ") Play " + j + "-" + (j + dices[i]));
-                            moves.add(new Direction(j, j + dices[i]));
+                    //如果棋子是x，并且如果移动后还在棋盘内
+                    if (board.getBoard(j) < 0 && j + dices.get(i) < 26 ){
+                        //如果目标地点为空，己方棋子存在，或敌方单个棋子，
+                        if (board.getBoard(j + dices.get(i)) < 2){
+                            System.out.println((char)(65 + count) + ") Play " + j + "-" + (j + dices.get(i)));
+                            moves.add(new Direction(j, j + dices.get(i)));
                             count++;
                         }
                     }
@@ -115,12 +138,13 @@ public class Game {
             }
         }
         else{
-            for (int i = 0; i < dices.length; i++){
+            //如果棋子是o
+            for (int i = 0; i < dices.size(); i++){
                 for (int j = 25; j >= 0; j--){
-                    if (board.getBoard(j) > 0 && j - dices[i]  >= 0 ){
-                        if (board.getBoard(j - dices[i]) > -2){
-                            System.out.println((char)(65 + count) + ") Play " + j + "-" + (j - dices[i]));
-                            moves.add(new Direction(j, j - dices[i]));
+                    if (board.getBoard(j) > 0 && j - dices.get(i) >= 0 ){
+                        if (board.getBoard(j - dices.get(i)) > -2){
+                            System.out.println((char)(65 + count) + ") Play " + j + "-" + (j - dices.get(i)));
+                            moves.add(new Direction(j, j - dices.get(i)));
                             count++;
                         }
                     }
@@ -128,11 +152,6 @@ public class Game {
             }
         }
         System.out.print(">>");
-//
-//        for (Direction move : moves) {
-//            System.out.println("Start: " + move.getStart() + ", Destination: " + move.getDestination());
-//        }
-//
     }
 
     public void movePiece(Board board, int start, int destination){
@@ -145,4 +164,15 @@ public class Game {
             board.setBoard(destination, board.getBoard(destination) + 1);
         }
     }
+
+    public ArrayList<Integer> removeInteger(ArrayList<Integer> arrayList, int object){
+        for(int i = 0; i< arrayList.size(); i++){
+            if(arrayList.get(i) == Math.abs(object)){
+                arrayList.remove(i);
+            }
+        }
+        return arrayList;
+    }
+
+
 }
