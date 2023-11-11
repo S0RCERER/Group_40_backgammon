@@ -118,11 +118,19 @@ public class Game {
             System.out.print("-" + dices.get(i));
         }
         System.out.print(". Select from:\n");
+        //添加count，通过for循环为所有可能的移动添加序号
         int count = 0;
+        //如果是double，不再循环各个骰子
+        int show = dices.size();
+        if(dices.size() > 1 ){
+            if(dices.get(0) == dices.get(1)){
+                show = 1;
+            }
+        }
         //如果棋子是x
         if (player.getPiece() == "x"){
             //遍历所有的骰子
-            for (int i = 0; i < dices.size(); i++){
+            for (int i = 0; i < show; i++){
                 //按照x行走顺序
                 for (int j = 0; j < 26; j++){
                     //如果棋子是x，并且如果移动后还在棋盘内
@@ -139,7 +147,7 @@ public class Game {
         }
         else{
             //如果棋子是o
-            for (int i = 0; i < dices.size(); i++){
+            for (int i = 0; i < show; i++){
                 for (int j = 25; j >= 0; j--){
                     if (board.getBoard(j) > 0 && j - dices.get(i) >= 0 ){
                         if (board.getBoard(j - dices.get(i)) > -2){
@@ -169,6 +177,7 @@ public class Game {
         for(int i = 0; i< arrayList.size(); i++){
             if(arrayList.get(i) == Math.abs(object)){
                 arrayList.remove(i);
+                break;
             }
         }
         return arrayList;
