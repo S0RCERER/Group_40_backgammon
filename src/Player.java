@@ -15,4 +15,12 @@ public class Player {
     public String getPiece() {
         return piece;
     }
+
+    public int getPip() {
+        return pip;
+    }
+
+    public void setPip(int newPip) {
+        this.pip = newPip;
+    }
 }

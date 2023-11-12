@@ -1,5 +1,9 @@
 public class Board {
     private int[] board;
+    //为失去的棋子计数
+    private int lostO;
+    private int lostX;
+    //初始化棋盘，o为正数，x为负数
     public Board() {
         board = new int[26];
         for (int i = 0; i < 26 ;i++){
@@ -13,6 +17,8 @@ public class Board {
         board[8] = 3;
         board[6] = 5;
         board[1] = -2;
+        lostO = 2;
+        lostX = 3;
     }
 
     public void displayBoard() {
@@ -23,8 +29,11 @@ public class Board {
 
     private void displayPips(int[] board) {
         String output = "";
-        for(int j =0; j < findMaxAbsoluteValue(board); j++){
+        //找大最大的行数，循环每一行
+        for(int j =0; j < Math.max(findMaxAbsoluteValue(board),lostX); j++){
+            //循环每一列
             for (int i = 13; i <= 25; i++){
+                //如果是o
                 if(board[i] > 0){
                     if (j < Math.abs(board[i])){
                         output +="o ";
@@ -34,6 +43,7 @@ public class Board {
                     }
                 }
                 else{
+                    //如果为空
                     if(board[i] == 0){
                         if(j == 0 && i != 25){
                             output += "|   ";
@@ -42,6 +52,7 @@ public class Board {
                             output += "    ";
                         }
                     }
+                    //如果是x
                     else{
                         if (j < Math.abs(board[i])){
                             output +="x ";
@@ -51,6 +62,7 @@ public class Board {
                         }
                     }
                 }
+                //检验是否是两位数字，保持对齐
                 if (Math.abs(board[i]) > 9){
                     output += " ";
                 }
@@ -59,10 +71,18 @@ public class Board {
                         output += "  ";
                     }
                 }
+                //考虑被吃掉的棋子
                 if (i == 18){
-                    output += "   ";
+                    if(j < lostX){
+                        output += "x  ";
+                    }
+                    else{
+                        output += "   ";
+                    }
                 }
-                else{
+                else
+                {
+                    //考虑到达终点的棋子
                     if(i == 25){
                         output += "\n";
                     }
@@ -71,10 +91,12 @@ public class Board {
         }
         System.out.println(output);
         output = "";
-        for(int j =0; j < findMaxAbsoluteValue(board); j++) {
+        for(int j =0; j < Math.max(findMaxAbsoluteValue(board),lostO); j++) {
             for (int i = 12; i >= 0; i--){
+                //如果棋子是o
                 if(board[i] > 0){
-                    if (j >= findMaxAbsoluteValue(board) - Math.abs(board[i])){
+                    //如果列数大于等于
+                    if (j >= Math.max(findMaxAbsoluteValue(board),lostO) - Math.abs(board[i])){
                         output +="o ";
                     }
                     else{
@@ -83,7 +105,7 @@ public class Board {
                 }
                 else{
                     if(board[i] == 0){
-                        if(j == findMaxAbsoluteValue(board) - 1 && i != 0){
+                        if(j == Math.max(findMaxAbsoluteValue(board),lostO) - 1 && i != 0){
                             output += "|   ";
                         }
                         else{
@@ -91,7 +113,7 @@ public class Board {
                         }
                     }
                     else{
-                        if (j >= findMaxAbsoluteValue(board) - Math.abs(board[i])){
+                        if (j >= Math.max(findMaxAbsoluteValue(board),lostO) - Math.abs(board[i])){
                             output +="x ";
                         }
                         else{
@@ -109,10 +131,15 @@ public class Board {
                     }
                 }
                 if (i == 7){
-                    output += "   ";
+                    if(j >= findMaxAbsoluteValue(board) - lostO){
+                        output += "o  ";
+                    }
+                    else{
+                        output += "   ";
+                    }
                 }
                 else{
-                    if(i == 0 && j != findMaxAbsoluteValue(board) - 1){
+                    if(i == 0 && j != Math.max(findMaxAbsoluteValue(board),lostO) - 1){
                         output += "\n";
                     }
                 }
@@ -140,4 +167,37 @@ public class Board {
         return maxAbsolute;
     }
 
+    public void addLostO(){
+        lostO++;
+    }
+
+    public void addLostX(){
+        lostX++;
+    }
+
+    public void removeLost(Player player){
+        if(player.getPiece() == "o"){
+            lostO--;
+        }
+        else{
+            lostX--;
+        }
+    }
+
+    public int getLostX(){
+        return lostX;
+    }
+
+    public int getLostO(){
+        return lostO;
+    }
+
+    public int getLost(Player player){
+        if(player.getPiece() == "o"){
+            return lostO;
+        }
+        else{
+            return lostX;
+        }
+    }
 }
