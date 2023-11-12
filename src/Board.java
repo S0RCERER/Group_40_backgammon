@@ -17,8 +17,8 @@ public class Board {
         board[8] = 3;
         board[6] = 5;
         board[1] = -2;
-        lostO = 2;
-        lostX = 3;
+        lostO = 0;
+        lostX = 0;
     }
 
     public void displayBoard() {
@@ -176,7 +176,7 @@ public class Board {
     }
 
     public void removeLost(Player player){
-        if(player.getPiece() == "o"){
+        if(player.getChecker() == "o"){
             lostO--;
         }
         else{
@@ -193,7 +193,7 @@ public class Board {
     }
 
     public int getLost(Player player){
-        if(player.getPiece() == "o"){
+        if(player.getChecker() == "o"){
             return lostO;
         }
         else{

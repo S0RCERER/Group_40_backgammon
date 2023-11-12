@@ -7,6 +7,7 @@ public class Game {
     private Player temp;
     private Dice dice;
     private List<Direction> moves = new ArrayList<>();
+
     public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter the user name of player o: ");
@@ -83,7 +84,7 @@ public class Game {
                             Direction move = moves.get(index);
                             //System.out.println(move.getStart() + "-" +move.getDestination());
                             //移动棋子，并且从dices删除用过的骰子
-                            movePiece(board, move.getStart(), move.getDestination(), temp);
+                            moveChecker(board, move.getStart(), move.getDestination(), temp);
                             //删除原有的选项，下一次循环重新检测可能的移动
                             moves.clear();
                             board.displayBoard();
@@ -114,17 +115,18 @@ public class Game {
     }
 
     private void displayCommands(){
-        System.out.println("All commands:\n1. Roll\n2. Quit\n3. Hint");
+        System.out.println("All commands:\n1. Roll\n2. Quit\n3. Hint\n4.Move");
     }
 
     private void displayMoves(Player player, ArrayList<Integer> dices, Board board){
-        System.out.print(player.getPiece() + " to play " + dices.get(0));
+        System.out.print(player.getChecker() + " to play " + dices.get(0));
         for (int i = 1; i < dices.size(); i++){
             System.out.print("-" + dices.get(i));
         }
         System.out.print("\n");
         //添加count，通过for循环为所有可能的移动添加序号
         int count = 0;
+        int boundary;
         //如果是double，不再循环各个骰子
         int show = dices.size();
         if (dices.size() > 1 ){
@@ -134,16 +136,29 @@ public class Game {
         }
         //如果该玩家不存在失去的棋子
         if (board.getLost(player) == 0){
-            if (player.getPiece() == "x"){
+            if (player.getChecker() == "x"){
                 //遍历所有的骰子
+                if (player.isFinalPhase(board)){
+                    boundary = 26;
+                }
+                else{
+                    boundary = 25;
+                }
                 for (int i = 0; i < show; i++){
                     //按照x行走顺序
-                    for (int j = 0; j < 26; j++){
+                    for (int j = 0; j < boundary; j++){
                         //如果棋子是x，并且如果移动后还在棋盘内
-                        if (board.getBoard(j) < 0 && j + dices.get(i) < 26 ){
+                        if (board.getBoard(j) < 0 && j + dices.get(i) < boundary ){
                             //如果目标地点为空，己方棋子存在，或敌方单个棋子，
                             if (board.getBoard(j + dices.get(i)) < 2){
-                                System.out.println((char)(65 + count) + ") Play " + j + "-" + (j + dices.get(i)));
+                                String destinationText = "";
+                                if (j + dices.get(i) == 25) {
+                                    destinationText = "OFF";
+                                }
+                                else{
+                                    destinationText = Integer.toString(j + dices.get(i));
+                                }
+                                System.out.println((char)(65 + count) + ") Play " + j + "-" + destinationText);
                                 moves.add(new Direction(j, j + dices.get(i)));
                                 count++;
                             }
@@ -153,11 +168,24 @@ public class Game {
             }
             else{
                 //如果棋子是o
+                if (player.isFinalPhase(board)){
+                    boundary = 0;
+                }
+                else{
+                    boundary = 1;
+                }
                 for (int i = 0; i < show; i++){
-                    for (int j = 25; j >= 0; j--){
-                        if (board.getBoard(j) > 0 && j - dices.get(i) >= 0 ){
+                    for (int j = 25; j >= boundary; j--){
+                        if (board.getBoard(j) > 0 && j - dices.get(i) >= boundary ){
                             if (board.getBoard(j - dices.get(i)) > -2){
-                                System.out.println((char)(65 + count) + ") Play " + j + "-" + (j - dices.get(i)));
+                                String destinationText = "";
+                                if (j - dices.get(i) == 0) {
+                                    destinationText = "OFF";
+                                }
+                                else{
+                                    destinationText = Integer.toString(j - dices.get(i));
+                                }
+                                System.out.println((char)(65 + count) + ") Play " + j + "-" + destinationText);
                                 moves.add(new Direction(j, j - dices.get(i)));
                                 count++;
                             }
@@ -170,9 +198,9 @@ public class Game {
         //如果玩家存在失去的棋子
         else{
             //强制移动失去的棋子
-            if (player.getPiece() == "x"){
+            if (player.getChecker() == "x"){
                 for (int i = 0; i < show; i++){
-                    if (board.getBoard(dices.get(i) + 1) < 2 ){
+                    if (board.getBoard(dices.get(i)) < 2 ){
                         System.out.println((char)(65 + count) + ") Play bar - " + dices.get(i));
                         moves.add(new Direction(-1, dices.get(i)));
                         count++;
@@ -192,8 +220,8 @@ public class Game {
         System.out.print(">>");
     }
 
-    public void movePiece(Board board, int start, int destination, Player player){
-        if (player.getPiece() == "x"){
+    public void moveChecker(Board board, int start, int destination, Player player){
+        if (player.getChecker() == "x"){
             if (board.getBoard(destination) == 1){
                 board.addLostO();
                 board.setBoard(destination, board.getBoard(destination) - 1);
@@ -223,7 +251,7 @@ public class Game {
 
     public ArrayList<Integer> removeInteger(ArrayList<Integer> arrayList, int start, int destination, Player player){
         if (start == -1){
-            if(player.getPiece() == "x"){
+            if(player.getChecker() == "x"){
                 start = 0;
             }
             else{
@@ -239,6 +267,4 @@ public class Game {
         }
         return arrayList;
     }
-
-
 }
