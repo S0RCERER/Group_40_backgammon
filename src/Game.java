@@ -27,7 +27,8 @@ public class Game {
         board.displayBoard();
 
         while (!isGameOver()) {
-            System.out.println(temp.getName() + "'s turn.");
+            System.out.println(temp.getName() + "'s turn:");
+            System.out.println("Pip:" + temp.getPip(board));
             while(true){
                 System.out.print("Enter command:");
                 String command = scanner.nextLine().toUpperCase();
@@ -39,7 +40,9 @@ public class Game {
                     System.out.println("Dices: " + dice.getDice1() + ", " + dice.getDice2());
                 } else if (command.equalsIgnoreCase("HINT")){
                     displayCommands();
-                } else if (command.equalsIgnoreCase("MOVE")){
+                } else if (command.equalsIgnoreCase("PIP")){
+                    System.out.println("Pip: " +temp.getPip(board));
+                }else if (command.equalsIgnoreCase("MOVE")){
                     //从dice中取出数目，存入arraylist
                     ArrayList<Integer> dices = new ArrayList<Integer>();
                     int dice1 = dice.getDice1();

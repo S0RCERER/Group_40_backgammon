@@ -6,7 +6,7 @@ public class Player {
     public Player(String name, String checker) {
         this.name = name;
         this.checker = checker;
-        this.pip = 156;
+        this.pip = 167;
     }
 
     public String getName() {
@@ -17,7 +17,20 @@ public class Player {
         return checker;
     }
 
-    public int getPip() {
+    public int getPip(Board board) {
+        int count = 0;
+        for(int i = 1; i < 25; i++) {
+            if (board.getBoard(i) != 0){
+                if (getChecker() == "x" && board.getBoard(i) < 0) {
+                    count += (25 - i) * Math.abs(board.getBoard(i));
+
+                }
+                if (getChecker() == "o" && board.getBoard(i) > 0){
+                    count += i * board.getBoard(i);
+                }
+            }
+        }
+        setPip(count);
         return pip;
     }
 
