@@ -92,6 +92,9 @@ public class Game {
                             moves.clear();
                             board.displayBoard();
                             removeInteger(dices,move.getStart(), move.getDestination(), temp);
+                            if (isGameOver()){
+                                break;
+                            }
                         }
                     }
                     break;
@@ -122,6 +125,8 @@ public class Game {
     }
 
     private void displayMoves(Player player, ArrayList<Integer> dices, Board board){
+        //对骰子进行逆排序，方便后续处理
+        Collections.sort(dices, Collections.reverseOrder());
         System.out.print(player.getChecker() + " to play " + dices.get(0));
         for (int i = 1; i < dices.size(); i++){
             System.out.print("-" + dices.get(i));
@@ -140,13 +145,19 @@ public class Game {
         //如果该玩家不存在失去的棋子
         if (board.getLost(player) == 0){
             if (player.getChecker() == "x"){
-                //遍历所有的骰子
+                //如果玩家处在最后阶段，骰子大于最远的棋子，那么可以将最远的棋子移入off
+                //最大的骰子如果比最远的棋子远，那么最大的骰子可以将最远的棋子移入off，其他骰子按照规则移动
                 if (player.isFinalPhase(board)){
                     boundary = 26;
+                    //最大的骰子设为最远距离数；
+                    if(player.findFurthestChecker(board) < dices.get(0)){
+                        dices.set(0,player.findFurthestChecker(board));
+                    }
                 }
                 else{
                     boundary = 25;
                 }
+                //遍历所有的骰子
                 for (int i = 0; i < show; i++){
                     //按照x行走顺序
                     for (int j = 0; j < boundary; j++){
@@ -173,6 +184,10 @@ public class Game {
                 //如果棋子是o
                 if (player.isFinalPhase(board)){
                     boundary = 0;
+                    //最大的骰子设为最远距离数；
+                    if(player.findFurthestChecker(board) < dices.get(0)){
+                        dices.set(0,player.findFurthestChecker(board));
+                    }
                 }
                 else{
                     boundary = 1;
@@ -196,7 +211,6 @@ public class Game {
                     }
                 }
             }
-
         }
         //如果玩家存在失去的棋子
         else{

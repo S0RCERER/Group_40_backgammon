@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Board {
     private int[] board;
     //为失去的棋子计数
@@ -30,7 +32,7 @@ public class Board {
     private void displayPips(int[] board) {
         String output = "";
         //找大最大的行数，循环每一行
-        for(int j =0; j < Math.max(findMaxAbsoluteValue(board),lostX); j++){
+        for(int j =0; j < Math.max(findMaxAbsoluteValue(Arrays.copyOfRange(board,13 ,26)),lostX); j++){
             //循环每一列
             for (int i = 13; i <= 25; i++){
                 //如果是o
@@ -62,7 +64,7 @@ public class Board {
                         }
                     }
                 }
-                //检验是否是两位数字，保持对齐
+                //保持对齐
                 if (Math.abs(board[i]) > 9){
                     output += " ";
                 }
@@ -96,7 +98,7 @@ public class Board {
                 //如果棋子是o
                 if(board[i] > 0){
                     //如果列数大于等于
-                    if (j >= Math.max(findMaxAbsoluteValue(board),lostO) - Math.abs(board[i])){
+                    if (j >= Math.max(findMaxAbsoluteValue(Arrays.copyOfRange(board,0 ,13)),lostO) - Math.abs(board[i])){
                         output +="o ";
                     }
                     else{

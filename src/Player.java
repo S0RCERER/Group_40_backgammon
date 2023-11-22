@@ -44,7 +44,7 @@ public class Player {
     }
 
     public boolean isFinalPhase(Board board){
-        if (getChecker() == "x"){
+        if (getChecker() == "x" && board.getLostX() == 0){
             for (int i = 1; i < 19; i++){
                 if (board.getBoard(i) < 0){
                     return false;
@@ -52,9 +52,11 @@ public class Player {
             }
         }
         else{
-            for (int i = 25; i > 6; i--){
-                if(board.getBoard(i) > 0){
-                    return false;
+            if (getChecker() == "o" && board.getLostO() == 0){
+                for (int i = 25; i > 6; i--){
+                    if(board.getBoard(i) > 0){
+                        return false;
+                    }
                 }
             }
         }
@@ -65,7 +67,7 @@ public class Player {
         if (getChecker() == "x"){
             for (int i = 1; i < 25; i++){
                 if (board.getBoard(i) < 0){
-                    return i;
+                    return 25 - i;
                 }
             }
         }
