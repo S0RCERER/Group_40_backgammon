@@ -125,7 +125,7 @@ public class Game {
     }
 
     private void displayMoves(Player player, ArrayList<Integer> dices, Board board){
-        //对骰子进行逆排序，方便后续处理
+        //对骰子进行逆排序，方便后续当骰子点数大于最远棋子的处理
         Collections.sort(dices, Collections.reverseOrder());
         System.out.print(player.getChecker() + " to play " + dices.get(0));
         for (int i = 1; i < dices.size(); i++){
@@ -148,8 +148,9 @@ public class Game {
                 //如果玩家处在最后阶段，骰子大于最远的棋子，那么可以将最远的棋子移入off
                 //最大的骰子如果比最远的棋子远，那么最大的骰子可以将最远的棋子移入off，其他骰子按照规则移动
                 if (player.isFinalPhase(board)){
+                    //读取范围到OFF
                     boundary = 26;
-                    //最大的骰子设为最远距离数；
+                    //最大的骰子设为最远距离数
                     if(player.findFurthestChecker(board) < dices.get(0)){
                         dices.set(0,player.findFurthestChecker(board));
                     }
@@ -184,7 +185,7 @@ public class Game {
                 //如果棋子是o
                 if (player.isFinalPhase(board)){
                     boundary = 0;
-                    //最大的骰子设为最远距离数；
+                    //最大的骰子设为最远距离数
                     if(player.findFurthestChecker(board) < dices.get(0)){
                         dices.set(0,player.findFurthestChecker(board));
                     }

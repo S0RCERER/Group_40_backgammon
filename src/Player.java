@@ -29,6 +29,7 @@ public class Player {
                 }
             }
         }
+        //如果还有失去的棋子，每个棋子计入一圈pip
         if (getChecker() == "x"){
             count += board.getLostX() * 25;
         }
@@ -44,6 +45,7 @@ public class Player {
     }
 
     public boolean isFinalPhase(Board board){
+        //查看是否所有棋子都在家，来判断游戏是否进入“bearing off”的阶段
         if (getChecker() == "x" && board.getLostX() == 0){
             for (int i = 1; i < 19; i++){
                 if (board.getBoard(i) < 0){
@@ -65,6 +67,7 @@ public class Player {
 
     public int findFurthestChecker(Board board){
         if (getChecker() == "x"){
+            //顺时针方向查找，当找到第一个棋子return
             for (int i = 1; i < 25; i++){
                 if (board.getBoard(i) < 0){
                     return 25 - i;
@@ -72,6 +75,7 @@ public class Player {
             }
         }
         else{
+            //逆时针查找
             for (int i = 25; i > 0; i--){
                 if(board.getBoard(i) > 0){
                     return i;
