@@ -23,12 +23,17 @@ public class Player {
             if (board.getBoard(i) != 0){
                 if (getChecker() == "x" && board.getBoard(i) < 0) {
                     count += (25 - i) * Math.abs(board.getBoard(i));
-
                 }
                 if (getChecker() == "o" && board.getBoard(i) > 0){
                     count += i * board.getBoard(i);
                 }
             }
+        }
+        if (getChecker() == "x"){
+            count += board.getLostX() * 25;
+        }
+        else{
+            count += board.getLostO() * 25;
         }
         setPip(count);
         return pip;
