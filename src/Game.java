@@ -38,11 +38,11 @@ public class Game {
                 } else if (command.equalsIgnoreCase("ROLL")) {
                     dice.roll();
                     System.out.println("Dices: " + dice.getDice1() + ", " + dice.getDice2());
-                } else if (command.equalsIgnoreCase("HINT")){
+                } else if (command.equalsIgnoreCase("HELP")){
                     displayCommands();
                 } else if (command.equalsIgnoreCase("PIP")){
                     System.out.println("Pip: " +temp.getPip(board));
-                }else if (command.equalsIgnoreCase("MOVE")){
+                }else if (command.equalsIgnoreCase("HINT")){
                     //从dice中取出数目，存入arraylist
                     ArrayList<Integer> dices = new ArrayList<Integer>();
                     int dice1 = dice.getDice1();
