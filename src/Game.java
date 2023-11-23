@@ -29,11 +29,13 @@ public class Game {
         while (!isGameOver()) {
             System.out.println(temp.getName() + "'s turn:");
             System.out.println("Pip:" + temp.getPip(board));
+            boolean quit = false;
             while(true){
                 System.out.print("Enter command:");
                 String command = scanner.nextLine().toUpperCase();
                 if (command.equalsIgnoreCase("QUIT")) {
                     System.out.println(temp.getName() + " quit the game.");
+                    quit = true;
                     break;
                 } else if (command.equalsIgnoreCase("ROLL")) {
                     dice.roll();
@@ -102,6 +104,9 @@ public class Game {
                     System.out.println("Invalid command.");
                 }
             }
+            if(quit){
+                break;
+            }
             if (temp.getName() != player1.getName()){
                 temp = player1;
             }
@@ -121,7 +126,7 @@ public class Game {
     }
 
     private void displayCommands(){
-        System.out.println("All commands:\n1. Roll\n2. Quit\n3. Hint\n4.Move");
+        System.out.println("All commands:\n1. Roll\n2. Quit\n3. Hint\n4. Move");
     }
 
     private void displayMoves(Player player, ArrayList<Integer> dices, Board board){
