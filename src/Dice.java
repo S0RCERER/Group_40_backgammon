@@ -22,6 +22,17 @@ public class Dice {
         return dice2;
     }
 
+    public void setDice1(int value){
+        dice1 = value;
+    }
+
+    public void setDice2(int value){
+        dice2 = value;
+    }
+
+    public void displayDices(){
+        System.out.println("Dices: " + getDice1() + ", " + getDice2());
+    }
     public boolean rollToStart(Player player1, Player player2){
         roll();
         boolean flag = true;
