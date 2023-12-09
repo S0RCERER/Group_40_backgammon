@@ -9,18 +9,48 @@ public class Game {
     private Player temp;
     private Dice dice;
     private List<Direction> moves = new ArrayList<>();
+    private long gameStartTime;
+    private long gameDuration;
 
+    private Test test;
+
+    private Thread gameThread;
     public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter the user name of player o: ");
         String playerOName = scanner.nextLine();
         System.out.print("Please enter the user name of player x: ");
         String playerXName = scanner.nextLine();
+        String select;
+        while(true){
+            System.out.println("Please select the length of the match: " +
+                    "\nA. 10 minutes" +
+                    "\nB. 30 minutes" +
+                    "\nC. No limit");
+            select = scanner.nextLine();
+            if ((select.equalsIgnoreCase("A" ) || select.equalsIgnoreCase("B" )) || select.equalsIgnoreCase("C" )){
+                break;
+            }
+            else{
+                System.out.println("Invalid choice.");
+            }
+        }
+
+        if (select.equalsIgnoreCase("A")) {
+            gameDuration = 10 * 60 * 1000;
+            //gameDuration = 3000;//测试3秒
+        } else if (select.equalsIgnoreCase("B")) {
+            gameDuration = 30 * 60 * 1000;
+        } else {
+            gameDuration = -1;
+        }
+
         player1 = new Player(playerOName, "o");
         player2 = new Player(playerXName, "x");
         dice = new Dice();
         board = new Board();
-        Test test = new Test();
+        test = new Test();
+
         if (dice.rollToStart(player1, player2)){
             temp = player1;
         }
@@ -29,126 +59,13 @@ public class Game {
         }
         board.displayBoard();
 
-        while (!isGameOver()) {
-            System.out.println(temp.getName() + "'s turn:");
-            System.out.println("Pip:" + temp.getPip(board));
-            boolean quit = false;
-            while(true){
-                System.out.print("Enter command:");
-                String command = scanner.nextLine();
-                String upperCaseCommand = command.toUpperCase();
+        gameStartTime = System.currentTimeMillis();
 
-                String dicePattern = "^DICE\\s+(\\d+)\\s+(\\d+)$";
-                Pattern diceRegex = Pattern.compile(dicePattern);
-                Matcher diceMatcher = diceRegex.matcher(upperCaseCommand);
+        gameThread = new Thread(this::runGame);
+        gameThread.start();
 
-                String filePattern = "^(?i)test\\s+(\\S+\\.txt)$";
-                Pattern fileRegex = Pattern.compile(filePattern);
-                Matcher fileMatcher = fileRegex.matcher(command);
-
-                if (diceMatcher.matches()) {
-                    int firstInt = Integer.parseInt(diceMatcher.group(1));
-                    int secondInt = Integer.parseInt(diceMatcher.group(2));
-                    test.setDiceValues(dice,firstInt,secondInt);
-                } else if (fileMatcher.find()) {
-                    test.executeCommandsFromFile(dice, fileMatcher.group(1));
-                }
-                else if (upperCaseCommand.equalsIgnoreCase("QUIT")) {
-                    System.out.println(temp.getName() + " quit the game.");
-                    quit = true;
-                    break;
-                } else if (upperCaseCommand.equalsIgnoreCase("ROLL")) {
-                    dice.roll();
-                    System.out.println("Dices: " + dice.getDice1() + ", " + dice.getDice2());
-                } else if (upperCaseCommand.equalsIgnoreCase("HELP")){
-                    displayCommands();
-                } else if (upperCaseCommand.equalsIgnoreCase("PIP")){
-                    System.out.println("Pip: " +temp.getPip(board));
-                } else if (upperCaseCommand.equalsIgnoreCase("HINT")){
-                    //从dice中取出数目，存入arraylist
-                    ArrayList<Integer> dices = new ArrayList<Integer>();
-                    int dice1 = dice.getDice1();
-                    int dice2 = dice.getDice2();
-                    if (dice1 == dice2){
-                        //当double的情况发生
-                        for(int i = 0; i < 4; i++){
-                            dices.add(dice1);
-                        }
-                    }
-                    else{
-                        dices.add(dice1);
-                        dices.add(dice2);
-                    }
-                    while(dices.size() > 0 ){
-                        //循环，让用户用掉所有的骰子
-                        int index = -1;
-                        while(true){
-                            //循环，展示所有可能存在的移动，直到读入合法的命令
-                            displayMoves(temp, dices, board);
-                            //如果没有合法移动，强制跳过
-                            if (moves.size() == 0){
-                                System.out.print("No valid moves available. Skipping your turn\n");
-                                dices.clear();
-                                break;
-                            }
-
-                            String choice = scanner.nextLine().toUpperCase();
-                            System.out.println(choice);
-                            if (choice.equalsIgnoreCase("QUIT")){
-                                System.out.println(temp.getName() + " quit the game.");
-                                quit = true;
-                                break;
-                            }
-                            else{
-                                if (choice.length() != 1) {
-                                    System.out.println("Invalid command");
-                                }
-                                else{
-                                    index = (int)choice.charAt(0) - 65;
-                                    if (index < moves.size() && index > -1){
-                                        break;
-                                    }
-                                    else{
-                                        System.out.println("Invalid command");
-                                    }
-                                }
-                            }
-                        }
-                        if(quit){
-                            break;
-                        }
-                        else{
-                            if(dices.size() != 0){
-                                //获取index，读取 起点 - 目的地 的Direction
-                                Direction move = moves.get(index);
-                                //System.out.println(move.getStart() + "-" +move.getDestination());
-                                //移动棋子，并且从dices删除用过的骰子
-                                moveChecker(board, move.getStart(), move.getDestination(), temp);
-                                //删除原有的选项，下一次循环重新检测可能的移动
-                                moves.clear();
-                                board.displayBoard();
-                                removeInteger(dices,move.getStart(), move.getDestination(), temp);
-                                if (isGameOver()){
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    break;
-                } else{
-                    System.out.println("Invalid command.");
-                }
-            }
-            if(quit){
-                break;
-            }
-            if (temp.getName() != player1.getName()){
-                temp = player1;
-            }
-            else{
-                temp = player2;
-            }
-        }
+        Thread timeCheckThread = new Thread(this::checkGameTime);
+        timeCheckThread.start();
     }
 
     private boolean isGameOver() {
@@ -324,5 +241,169 @@ public class Game {
             }
         }
         return arrayList;
+    }
+
+    public Matcher validateDice(String command){
+        String dicePattern = "^DICE\\s+(\\d+)\\s+(\\d+)$";
+        Pattern diceRegex = Pattern.compile(dicePattern);
+        Matcher diceMatcher = diceRegex.matcher(command);
+        return diceMatcher;
+    }
+
+    public Matcher validateFile(String command){
+        String filePattern = "^(?i)test\\s+(\\S+\\.txt)$";
+        Pattern fileRegex = Pattern.compile(filePattern);
+        Matcher fileMatcher = fileRegex.matcher(command);
+        return fileMatcher;
+    }
+
+    private void checkGameTime() {
+        while (true) {
+            if (gameDuration != -1 && isTimeUp()) {
+                System.out.println("Time's up! Game over.");
+                System.exit(0);
+                break;
+            }
+
+            try {
+                Thread.sleep(1000); // 每秒检查一次游戏时间
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private boolean isTimeUp() {
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - gameStartTime;
+        return elapsedTime >= gameDuration;
+    }
+
+    private void runGame() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (!isGameOver()) {
+            System.out.println(temp.getName() + "'s turn:");
+            System.out.println("Pip:" + temp.getPip(board) + ", Time elapsed: " + formattedTime(System.currentTimeMillis() - gameStartTime));
+            boolean quit = false;
+            while(true){
+                System.out.print("Enter command:");
+                String command = scanner.nextLine();
+                String upperCaseCommand = command.toUpperCase();
+
+                Matcher diceMatcher = validateDice(upperCaseCommand);
+                Matcher fileMatcher = validateFile(command);
+                if (diceMatcher.find()) {
+                    int firstInt = Integer.parseInt(diceMatcher.group(1));
+                    int secondInt = Integer.parseInt(diceMatcher.group(2));
+                    test.setDiceValues(dice,firstInt,secondInt);
+                } else if (fileMatcher.find()) {
+                    test.executeCommandsFromFile(dice, fileMatcher.group(1));
+                }
+                else if (upperCaseCommand.equalsIgnoreCase("QUIT")) {
+                    System.out.println("Exiting game.");
+                    quit = true;
+                    break;
+                } else if (upperCaseCommand.equalsIgnoreCase("ROLL")) {
+                    dice.roll();
+                    dice.displayDices();
+                } else if (upperCaseCommand.equalsIgnoreCase("HELP")){
+                    displayCommands();
+                } else if (upperCaseCommand.equalsIgnoreCase("PIP")){
+                    System.out.println("Pip: " +temp.getPip(board));
+                } else if (upperCaseCommand.equalsIgnoreCase("HINT")){
+                    //从dice中取出数目，存入arraylist
+                    ArrayList<Integer> dices = new ArrayList<Integer>();
+                    int dice1 = dice.getDice1();
+                    int dice2 = dice.getDice2();
+                    if (dice1 == dice2){
+                        //当double的情况发生
+                        for(int i = 0; i < 4; i++){
+                            dices.add(dice1);
+                        }
+                    }
+                    else{
+                        dices.add(dice1);
+                        dices.add(dice2);
+                    }
+                    while(dices.size() > 0 ){
+                        //循环，让用户用掉所有的骰子
+                        int index = -1;
+                        while(true){
+                            //循环，展示所有可能存在的移动，直到读入合法的命令
+                            displayMoves(temp, dices, board);
+                            //如果没有合法移动，强制跳过
+                            if (moves.size() == 0){
+                                System.out.print("No valid moves available. Skipping your turn\n");
+                                dices.clear();
+                                break;
+                            }
+
+                            String choice = scanner.nextLine().toUpperCase();
+                            System.out.println(choice);
+                            if (choice.equalsIgnoreCase("QUIT")){
+                                System.out.println("Exiting game.");
+                                quit = true;
+                                break;
+                            }
+                            else{
+                                if (choice.length() != 1) {
+                                    System.out.println("Invalid command");
+                                }
+                                else{
+                                    index = (int)choice.charAt(0) - 65;
+                                    if (index < moves.size() && index > -1){
+                                        break;
+                                    }
+                                    else{
+                                        System.out.println("Invalid command");
+                                    }
+                                }
+                            }
+                        }
+                        if(quit){
+                            break;
+                        }
+                        else{
+                            if(dices.size() != 0){
+                                //获取index，读取 起点 - 目的地 的Direction
+                                Direction move = moves.get(index);
+                                //System.out.println(move.getStart() + "-" +move.getDestination());
+                                //移动棋子，并且从dices删除用过的骰子
+                                moveChecker(board, move.getStart(), move.getDestination(), temp);
+                                //删除原有的选项，下一次循环重新检测可能的移动
+                                moves.clear();
+                                board.displayBoard();
+                                removeInteger(dices,move.getStart(), move.getDestination(), temp);
+                                if (isGameOver()){
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                } else{
+                    System.out.println("Invalid command.");
+                }
+            }
+            if(quit){
+                break;
+            }
+            if (temp.getName() != player1.getName()){
+                temp = player1;
+            }
+            else{
+                temp = player2;
+            }
+        }
+    }
+
+    private String formattedTime(long milliseconds) {
+        long seconds = milliseconds / 1000;
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        seconds = seconds % 60;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 }
