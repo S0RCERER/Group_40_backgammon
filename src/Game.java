@@ -11,10 +11,49 @@ public class Game {
     private List<Direction> moves = new ArrayList<>();
     private long gameStartTime;
     private long gameDuration;
+    
 
     private Test test;
 
     private Thread gameThread;
+
+    private int doublingValue;
+    private Player doublingOwner;
+
+
+
+    public Game() {
+        // Existing initialization code...
+        doublingValue = 1; // Initialize doubling cube value
+        doublingOwner = null; // Initially, no one owns the doubling cube
+    }
+ // Method to handle a player offering to double
+ public void offerDouble(Player player) {
+    if (canPlayerDouble(player)) {
+        doublingValue *= 2;
+        doublingOwner = player;
+        System.out.println(player.getName() + " has offered to double. The stake is now: " + doublingValue);
+        // Further logic to allow the other player to accept or refuse
+    } else {
+        System.out.println(player.getName() + " cannot double at this time.");
+    }
+}
+ // Check if a player can double
+ private boolean canPlayerDouble(Player player) {
+    // Implement rules that determine if a player can double
+    return true; // Placeholder for logic
+}
+ // Display the doubling cube
+ public void displayDoublingCube() {
+    if (doublingOwner != null) {
+        System.out.println("Doubling cube: " + doublingValue + " (Owned by " + doublingOwner.getName() + ")");
+    } else {
+        System.out.println("Doubling cube is neutral: " + doublingValue);
+    }
+}
+
+
+
     public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter the user name of player o: ");
@@ -311,7 +350,14 @@ public class Game {
                     displayCommands();
                 } else if (upperCaseCommand.equalsIgnoreCase("PIP")){
                     System.out.println("Pip: " +temp.getPip(board));
-                } else if (upperCaseCommand.equalsIgnoreCase("HINT")){
+                }  else if (upperCaseCommand.equalsIgnoreCase("DOUBLE")){
+               
+                    offerDouble(temp);
+                    // Logic for the other player to accept or refuse the double
+                }
+                
+                
+                else if (upperCaseCommand.equalsIgnoreCase("HINT")){
                     //从dice中取出数目，存入arraylist
                     ArrayList<Integer> dices = new ArrayList<Integer>();
                     int dice1 = dice.getDice1();
@@ -405,5 +451,17 @@ public class Game {
         seconds = seconds % 60;
 
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    public void acceptDouble(Player player) {
+        // Logic for accepting the double
+        System.out.println(player.getName() + " has accepted the double.");
+        // Update game state accordingly
+    }
+    
+    public void refuseDouble(Player player) {
+        // Logic for refusing the double
+        System.out.println(player.getName() + " has refused the double.");
+        // Update game state accordingly, possibly ending the game
     }
 }
