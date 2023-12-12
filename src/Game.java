@@ -40,8 +40,9 @@ public class Game {
 }
  // Check if a player can double
  private boolean canPlayerDouble(Player player) {
-    // Implement rules that determine if a player can double
-    return true; // Placeholder for logic
+
+    return true; 
+ 
 }
  // Display the doubling cube
  public void displayDoublingCube() {
@@ -326,12 +327,33 @@ public class Game {
             System.out.println("Pip:" + temp.getPip(board) + ", Time elapsed: " + formattedTime(System.currentTimeMillis() - gameStartTime));
             boolean quit = false;
             while(true){
+
+ // 在玩家回合开始前检查是否有加倍提议
+        if (doublingValue > 1 && temp != doublingOwner) {
+            System.out.println("Double has been offered. Do you accept? (yes/no)");
+            String response = scanner.nextLine().toLowerCase();
+            if (response.equalsIgnoreCase("no")) {
+                refuseDouble(temp);
+                break;
+            } else {
+                acceptDouble(temp);
+                // 如果接受加倍，允许当前玩家再次提出加倍
+                System.out.print("Do you want to double? (yes/no): ");
+                response = scanner.nextLine();
+                if (response.equalsIgnoreCase("yes")) {
+                    offerDouble(temp);
+                }
+            }
+        }
+
                 System.out.print("Enter command:");
                 String command = scanner.nextLine();
                 String upperCaseCommand = command.toUpperCase();
 
                 Matcher diceMatcher = validateDice(upperCaseCommand);
                 Matcher fileMatcher = validateFile(command);
+
+
                 if (diceMatcher.find()) {
                     int firstInt = Integer.parseInt(diceMatcher.group(1));
                     int secondInt = Integer.parseInt(diceMatcher.group(2));
@@ -462,6 +484,7 @@ public class Game {
     public void refuseDouble(Player player) {
         // Logic for refusing the double
         System.out.println(player.getName() + " has refused the double.");
-        // Update game state accordingly, possibly ending the game
+        
+        System.exit(0);
     }
 }
