@@ -20,6 +20,10 @@ public class Game {
     private int doublingValue;
     private Player doublingOwner;
 
+    //private int totalRounds;
+    private int currentRound;
+    private int winningScore;
+
 
 
     public Game() {
@@ -57,18 +61,41 @@ public class Game {
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
+        Scanner scanner2 = new Scanner(System.in);
+
+
+
+
         System.out.print("Please enter the user name of player o: ");
         String playerOName = scanner.nextLine();
         System.out.print("Please enter the user name of player x: ");
         String playerXName = scanner.nextLine();
         String select;
+
+        while(true){
+
+        System.out.print("Enter the socre to win: ");
+        
+        winningScore = scanner.nextInt();
+        if(winningScore<5){
+            System.out.println("Invalid choice.");
+        }else{
+            currentRound = 1;
+            
+            break;
+        }
+        
+    }
+
         while(true){
             System.out.println("Please select the length of the match: " +
                     "\nA. 10 minutes" +
                     "\nB. 30 minutes" +
                     "\nC. No limit");
-            select = scanner.nextLine();
+            select = scanner2.nextLine();
             if ((select.equalsIgnoreCase("A" ) || select.equalsIgnoreCase("B" )) || select.equalsIgnoreCase("C" )){
+
+              
                 break;
             }
             else{
@@ -106,10 +133,13 @@ public class Game {
 
         Thread timeCheckThread = new Thread(this::checkGameTime);
         timeCheckThread.start();
+
+        
     }
 
     private boolean isGameOver() {
         if (board.getBoard(0) == 15 || board.getBoard(25) == 15){
+          
             return true;
         }
         else{
@@ -463,7 +493,46 @@ public class Game {
             else{
                 temp = player2;
             }
+            // 当一场游戏结束
+    updateScores();  // 更新积分
+
+
         }
+    }
+
+    private void updateScores() {
+        if (board.getBoard(0) == 15) {
+            player1.addScore(doublingValue); // 玩家1赢得这局游戏
+            // 提示是否开始下一场比赛
+            promptNextMatch();
+        } else if (board.getBoard(25) == 15) {
+            player2.addScore(doublingValue); // 玩家2赢得这局游戏
+            // 提示是否开始下一场比赛
+            promptNextMatch();
+        }
+            // 检查是否有玩家赢得了锦标赛
+    }
+
+    public void matchControl(){
+        if (player1.getScore() >= winningScore || player2.getScore() >= winningScore) {
+            announceWinner();
+        }
+    }
+    
+    private void promptNextMatch() {
+        System.out.print("Start next match? (yes/no): ");
+        Scanner scanner = new Scanner(System.in);
+        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+            // 重置游戏状态，开始新的一局
+            resetGame();
+            runGame();
+        }
+    }
+    private void resetGame() {
+        // 重置游戏状态，准备新的一局
+        // 例如，重置棋盘、骰子等
+        // 可能需要重新初始化玩家或其他游戏元素
+        this.start();
     }
 
     private String formattedTime(long milliseconds) {
@@ -484,7 +553,23 @@ public class Game {
     public void refuseDouble(Player player) {
         // Logic for refusing the double
         System.out.println(player.getName() + " has refused the double.");
-        
-        System.exit(0);
+       
+        updateScores();
+
+        resetGame();
+    }
+
+    private void announceWinner() {
+        System.out.println("Final scores:");
+        System.out.println("Player 1 score: " + player1.getScore());
+        System.out.println("Player 2 score: " + player2.getScore());
+    
+        if (player1.getScore() > player2.getScore()) {
+            System.out.println("Player 1 wins the tournament!");
+        } else if (player2.getScore() > player1.getScore()) {
+            System.out.println("Player 2 wins the tournament!");
+        } else {
+            System.out.println("The tournament ends in a draw!");
+        }
     }
 }

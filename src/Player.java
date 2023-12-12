@@ -3,10 +3,13 @@ public class Player {
     private String checker;
     private int pip;
     private boolean finalPhase;
+    private int score;
+
     public Player(String name, String checker) {
         this.name = name;
         this.checker = checker;
         this.pip = 167;
+        this.score = 0;
     }
 
     public String getName() {
@@ -16,7 +19,14 @@ public class Player {
     public String getChecker() {
         return checker;
     }
+    public void addScore(int points) {
+        this.score += points;
+    }
 
+    // 获取玩家的积分
+    public int getScore() {
+        return this.score;
+    }
     public int getPip(Board board) {
         int count = 0;
         for(int i = 1; i < 25; i++) {
