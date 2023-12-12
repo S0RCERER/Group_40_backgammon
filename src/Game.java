@@ -23,6 +23,8 @@ public class Game {
     //private int totalRounds;
     private int currentRound;
     private int winningScore;
+    private volatile boolean gameRunning; // 控制游戏线程运行的标志
+    private Thread timeCheckThread; // 检查游戏时间的线程
 
 
 
@@ -63,7 +65,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         Scanner scanner2 = new Scanner(System.in);
 
-
+        gameRunning = true; // 初始化时将游戏运行标志设为 true
 
 
         System.out.print("Please enter the user name of player o: ");
@@ -114,10 +116,16 @@ public class Game {
 
         player1 = new Player(playerOName, "o");
         player2 = new Player(playerXName, "x");
+        
+        goGame();
+    }
+
+    public void goGame(){
+        
+        doublingValue=1;
         dice = new Dice();
         board = new Board();
         test = new Test();
-
         if (dice.rollToStart(player1, player2)){
             temp = player1;
         }
@@ -127,13 +135,15 @@ public class Game {
         board.displayBoard();
 
         gameStartTime = System.currentTimeMillis();
-
+        if (gameThread == null) {
         gameThread = new Thread(this::runGame);
         gameThread.start();
-
-        Thread timeCheckThread = new Thread(this::checkGameTime);
+        }
+        if (timeCheckThread == null) {
+        timeCheckThread = new Thread(this::checkGameTime);
+       
         timeCheckThread.start();
-
+        }
         
     }
 
@@ -328,7 +338,7 @@ public class Game {
     }
 
     private void checkGameTime() {
-        while (true) {
+        while (gameRunning) {
             if (gameDuration != -1 && isTimeUp()) {
                 System.out.println("Time's up! Game over.");
                 System.exit(0);
@@ -340,7 +350,20 @@ public class Game {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            try {
+                Thread.sleep(100); // 每秒检查一次
+            } catch (InterruptedException e) {
+                // 线程被中断时的处理
+                break;
+            }
         }
+    }
+    public void stopGame() {
+        gameRunning = false; // 设置游戏运行标志为 false
+        if (gameThread != null) {
+            gameThread.interrupt(); // 尝试中断游戏线程
+        }
+       
     }
 
     private boolean isTimeUp() {
@@ -352,7 +375,7 @@ public class Game {
     private void runGame() {
         Scanner scanner = new Scanner(System.in);
 
-        while (!isGameOver()) {
+        while (!isGameOver() && gameRunning) {
             System.out.println(temp.getName() + "'s turn:");
             System.out.println("Pip:" + temp.getPip(board) + ", Time elapsed: " + formattedTime(System.currentTimeMillis() - gameStartTime));
             boolean quit = false;
@@ -525,14 +548,17 @@ public class Game {
         if (scanner.nextLine().equalsIgnoreCase("yes")) {
             // 重置游戏状态，开始新的一局
             resetGame();
-            runGame();
+           
         }
     }
     private void resetGame() {
         // 重置游戏状态，准备新的一局
         // 例如，重置棋盘、骰子等
         // 可能需要重新初始化玩家或其他游戏元素
-        this.start();
+        stopGame(); // 停止当前运行的游戏线程
+        // 重置游戏状态...
+        gameRunning = true; // 重置游戏运行标志
+        this.goGame();
     }
 
     private String formattedTime(long milliseconds) {
@@ -553,7 +579,7 @@ public class Game {
     public void refuseDouble(Player player) {
         // Logic for refusing the double
         System.out.println(player.getName() + " has refused the double.");
-       
+        System.out.println("A new game start");
         updateScores();
 
         resetGame();
