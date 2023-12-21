@@ -11,7 +11,7 @@ class PlayerTest {
     void setUp() {
         playerX = new Player("Alice", "x");
         playerO = new Player("Bob", "o");
-        board = new Board(); // 假设 Board 类已经存在并初始化了棋盘
+        board = new Board();
     }
 
     @Test
@@ -37,8 +37,6 @@ class PlayerTest {
 
     @Test
     void testPipCalculation() {
-        // 初始化棋盘以使测试有意义
-        // ... 初始化代码 ...
 
         int pipX = playerX.getPip(board);
         int pipO = playerO.getPip(board);
@@ -49,8 +47,6 @@ class PlayerTest {
 
     @Test
     void testIsFinalPhase() {
-        // 初始化棋盘以使测试有意义
-        // ... 初始化代码 ...
 
         boolean finalPhaseX = playerX.isFinalPhase(board);
         boolean finalPhaseO = playerO.isFinalPhase(board);
@@ -61,8 +57,6 @@ class PlayerTest {
 
     @Test
     void testFindFurthestChecker() {
-        // 初始化棋盘以使测试有意义
-        // ... 初始化代码 ...
 
         int furthestX = playerX.findFurthestChecker(board);
         int furthestO = playerO.findFurthestChecker(board);
@@ -84,5 +78,5 @@ class PlayerTest {
         assertEquals("x", playerX.getChecker(), "Checker type should match");
     }
 
-    
+
 }

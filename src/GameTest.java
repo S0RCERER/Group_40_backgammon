@@ -19,7 +19,6 @@ class GameTest {
         player1 = new Player("Alice", "o");
         player2 = new Player("Bob", "x");
 
-        // 使用反射设置私有成员 player1 和 player2
         Field player1Field = Game.class.getDeclaredField("player1");
         Field player2Field = Game.class.getDeclaredField("player2");
         player1Field.setAccessible(true);

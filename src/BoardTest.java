@@ -11,13 +11,11 @@ class BoardTest {
         board = new Board();
     }
 
-    // ... 其他测试用例 ...
-
     @Test
     void testRemoveLostO() {
         // Test removing a lost O piece
         board.addLostO();
-        board.removeLost(new Player("PlayerName", "o")); // 假设 "PlayerName" 是玩家的名字
+        board.removeLost(new Player("PlayerName", "o"));
         assertEquals(0, board.getLostO(), "After removing, lostO should be 0");
     }
 
@@ -25,7 +23,7 @@ class BoardTest {
     void testRemoveLostX() {
         // Test removing a lost X piece
         board.addLostX();
-        board.removeLost(new Player("PlayerName", "x")); // 假设 "PlayerName" 是玩家的名字
+        board.removeLost(new Player("PlayerName", "x"));
         assertEquals(0, board.getLostX(), "After removing, lostX should be 0");
     }
 

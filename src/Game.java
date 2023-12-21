@@ -2,6 +2,14 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * The {@code Game} class represents a backgammon game session. It manages the game's state,
+ * including the board layout, player turns, and the doubling cube mechanics.
+ * This class handles the game flow, including starting and stopping the game, managing player moves,
+ * handling dice rolls, and keeping track of the game duration and scores.
+ * It offers methods to offer and accept doubling stakes, validate moves, and determine the game outcome.
+ */
 public class Game {
     private Board board;
     private Player player1;
@@ -19,11 +27,10 @@ public class Game {
     private int doublingValue;
     private Player doublingOwner;
 
-    // private int totalRounds;
-    private int currentRound;
+
     private int winningScore;
-    private volatile boolean gameRunning; // 控制游戏线程运行的标志
-    private Thread timeCheckThread; // 检查游戏时间的线程
+    private volatile boolean gameRunning; // control the game running in the thread
+    private Thread timeCheckThread; // check the time in the thread
 
     // private Scanner scanner;
 
@@ -33,7 +40,14 @@ public class Game {
         doublingOwner = null; // Initially, no one owns the doubling cube
     }
 
-    // Method to handle a player offering to double
+
+    /**
+     * Offers to double the stakes of the game. This method increases the doubling value
+     * if the specified player is allowed to double. It sets the doubling cube's owner to the
+     * player who made the offer. If the player is not allowed to double, a message is displayed.
+     *
+     * @param player The player attempting to double the stakes.
+     */
     public void offerDouble(Player player) {
         if (canPlayerDouble(player)) {
             doublingValue *= 2;
@@ -46,6 +60,13 @@ public class Game {
     }
 
     // Check if a player can double
+    /**
+     * Determines if the specified player is allowed to double the stakes at the current game state.
+     * This method checks the game rules and conditions under which a player can offer to double the stakes.
+     *
+     * @param player The player whose eligibility to double is being checked.
+     * @return {@code true} if the player can double, {@code false} otherwise.
+     */
     private boolean canPlayerDouble(Player player) {
 
         return true;
@@ -61,13 +82,15 @@ public class Game {
         }
     }
 
+    /**
+     * Initializes and starts a new game. This method sets up the players, the board, and the dice.
+     * It prompts the user for game settings such as player names and match duration.
+     * The game starts with the roll to determine which player goes first.
+     */
     public void start() {
         Scanner scanner = new Scanner(System.in);
-        // Scanner scanner2 = new Scanner(System.in);
 
-        //scanner = new Scanner(System.in);
-
-        gameRunning = true; // 初始化时将游戏运行标志设为 true
+        gameRunning = true;
 
         System.out.print("Please enter the user name of player o: ");
         String playerOName = scanner.nextLine();
@@ -84,7 +107,7 @@ public class Game {
             if (winningScore < 5) {
                 System.out.println("Invalid choice.");
             } else {
-                currentRound = 1;
+
                 break;
             }
 
@@ -107,7 +130,7 @@ public class Game {
 
         if (select.equalsIgnoreCase("A")) {
             gameDuration = 10 * 60 * 1000;
-            //gameDuration = 3000 ;// 测试3秒
+            //gameDuration = 3000;// test 3 seconds
         } else if (select.equalsIgnoreCase("B")) {
             gameDuration = 30 * 60 * 1000;
         } else {
@@ -120,9 +143,14 @@ public class Game {
         goGame();
     }
 
+
+    /**
+     * Prepares and starts the main game loop. This method initializes game components such as the board, dice, and players.
+     * It determines the starting player based on a dice roll and sets up the necessary threads for the game and time monitoring.
+     * The game state is reset before starting, including setting the doubling cube value to its initial state.
+     * This method should be called to start a new game or restart the game with the current settings.
+     */
     public void goGame() {
-
-
 
         doublingValue = 1;
         dice = new Dice();
@@ -135,25 +163,21 @@ public class Game {
         }
         board.displayBoard();
 
-        //gameStartTime = System.currentTimeMillis();
 
         if (gameThread != null) {
             stopGame();
         }
 
         gameRunning = true;
-        //if (!gameThread.isAlive()) {
-        System.out.println(gameRunning);
+
         gameThread = new Thread(this::runGame, "GameThread-" + System.currentTimeMillis());
 
         gameThread.start();
-        //}
-        // if (!timeCheckThread.isAlive()) {
-        System.out.println("Starting time check thread...");
+
         timeCheckThread = new Thread(this::checkGameTime, "TimeCheckThread-" + System.currentTimeMillis());
 
         timeCheckThread.start();
-        //  }
+
 
     }
 
@@ -171,45 +195,58 @@ public class Game {
     }
 
     private void displayMoves(Player player, ArrayList<Integer> dices, Board board) {
-        // 对骰子进行逆排序，方便后续当骰子点数大于最远棋子的处理
+
+        // sort the dices in reverse order, so that when the dice is larger than the furthest checker, it can be handled
         Collections.sort(dices, Collections.reverseOrder());
         System.out.print(player.getChecker() + " to play " + dices.get(0));
         for (int i = 1; i < dices.size(); i++) {
             System.out.print("-" + dices.get(i));
         }
         System.out.print("\n");
-        // 添加count，通过for循环为所有可能的移动添加序号
+
+        // add count, add serial number for all possible moves through for loop
         int count = 0;
         int boundary;
-        // 如果是double，不再循环各个骰子
+
+        // if double, no longer loop through each dice
         int show = dices.size();
         if (dices.size() > 1) {
             if (dices.get(0) == dices.get(1)) {
                 show = 1;
             }
         }
-        // 如果该玩家不存在失去的棋子
+
+        // if the player does not have lost checker
         if (board.getLost(player) == 0) {
             if (player.getChecker() == "x") {
-                // 如果玩家处在最后阶段，骰子大于最远的棋子，那么可以将最远的棋子移入off
-                // 最大的骰子如果比最远的棋子远，那么最大的骰子可以将最远的棋子移入off，其他骰子按照规则移动
+
+// if player is in the final phase, the dice is larger than the furthest checker, then the furthest checker can be moved into off
+// if the largest dice is farther than the furthest checker,
+//then the largest dice can move the furthest checker into off, and other dices move according to the rules
+
                 if (player.isFinalPhase(board)) {
-                    // 读取范围到OFF
+
+                    // read the range to OFF
                     boundary = 26;
-                    // 最大的骰子设为最远距离数
+
+                    // the largest dice is farther than the furthest checker
                     if (player.findFurthestChecker(board) < dices.get(0)) {
                         dices.set(0, player.findFurthestChecker(board));
                     }
                 } else {
                     boundary = 25;
                 }
-                // 遍历所有的骰子
+
+                // loop through all dices
                 for (int i = 0; i < show; i++) {
-                    // 按照x行走顺序
+
+                    // loop through all the checkers
                     for (int j = 0; j < boundary; j++) {
-                        // 如果棋子是x，并且如果移动后还在棋盘内
+
+                        // if the checker is x, and if the checker is still on the board after moving
                         if (board.getBoard(j) < 0 && j + dices.get(i) < boundary) {
-                            // 如果目标地点为空，己方棋子存在，或敌方单个棋子，
+
+                            // if the destination is empty, the player's checker exists, or the enemy's single checker
                             if (board.getBoard(j + dices.get(i)) < 2) {
                                 String destinationText = "";
                                 if (j + dices.get(i) == 25) {
@@ -225,10 +262,12 @@ public class Game {
                     }
                 }
             } else {
-                // 如果棋子是o
+
+                // if checker is o
                 if (player.isFinalPhase(board)) {
                     boundary = 0;
-                    // 最大的骰子设为最远距离数
+
+                    // the largest dice is farther than the furthest checker
                     if (player.findFurthestChecker(board) < dices.get(0)) {
                         dices.set(0, player.findFurthestChecker(board));
                     }
@@ -254,9 +293,11 @@ public class Game {
                 }
             }
         }
-        // 如果玩家存在失去的棋子
+
+        // if the player has lost checker
         else {
-            // 强制移动失去的棋子
+
+            // force to move the lost checker
             if (player.getChecker() == "x") {
                 for (int i = 0; i < show; i++) {
                     if (board.getBoard(dices.get(i)) < 2) {
@@ -340,55 +381,36 @@ public class Game {
         while (gameRunning) {
             if (gameDuration != -1 && isTimeUp()) {
                 System.out.println("Time's up! Game over.");
-                //System.exit(0);
+                // System.exit(0);
 
-                //stopGame();
-                gameRunning=false;
+                // stopGame();
+                gameRunning = false;
 
                 promptNextMatch();
                 break;
             }
 
             try {
-                Thread.sleep(1000); // 每秒检查一次游戏时间
+                Thread.sleep(1000); // check every second
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // 重新设置中断状态
+                Thread.currentThread().interrupt(); // reset interrupt status
                 break;
                 // e.printStackTrace();
             }
-            // try {
-            // Thread.sleep(100); // 每秒检查一次
-            // } catch (InterruptedException e) {
-            // // 线程被中断时的处理
-            // break;
-            // }
+
         }
     }
 
     public void stopGame() {
-        System.out.println("Stopping game...");
-        gameRunning = false; // 设置游戏运行标志为 false
-        //if (gameThread != null) {
-        //         this.gameThread.interrupt(); // 尝试中断游戏线程
-        //         if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
-        //             System.out.println("Game thread has stopped.");
-        //         }
-        //     // }
-        //     //if (timeCheckThread != null) {
-        //         this.timeCheckThread.interrupt(); // 尝试中断游戏线程
-        //    // }
-
-
-        if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
-            System.out.println("Game thread has stopped.");
-        }
+        // System.out.println("Stopping game...");
+        gameRunning = false;
 
         if (gameThread != null && gameThread.isAlive()) {
             gameThread.interrupt();
             try {
-                gameThread.join(); // 等待线程结束
+                gameThread.join(); // wait for thread to finish
             } catch (InterruptedException e) {
-                // 处理中断逻辑，如果需要
+                // handle interrupt logic, if needed
                 Thread.currentThread().interrupt();
             }
         }
@@ -396,9 +418,9 @@ public class Game {
         if (timeCheckThread != null && timeCheckThread.isAlive()) {
             timeCheckThread.interrupt();
             try {
-                timeCheckThread.join(); // 等待线程结束
+                timeCheckThread.join();
             } catch (InterruptedException e) {
-                // 处理中断逻辑，如果需要
+
                 Thread.currentThread().interrupt();
             }
         }
@@ -411,25 +433,30 @@ public class Game {
         return elapsedTime >= gameDuration;
     }
 
+    /**
+     * Executes the main game loop. This method is responsible for managing each turn of the game.
+     * It controls the sequence of actions within a player's turn, including rolling dice, making moves,
+     * and handling commands like quitting or offering doubles. The method checks for game-over conditions
+     * and updates the game state accordingly. It also tracks and displays the elapsed time since the game started.
+     * This method should be run in a separate thread to keep the game loop independent of other operations.
+     */
     private void runGame() {
-
-
-
 
         gameStartTime = System.currentTimeMillis();
         Scanner scanner = new Scanner(System.in);
-        //this.scanner = new Scanner(System.in);
+        // this.scanner = new Scanner(System.in);
         while (!isGameOver() && gameRunning) {
             System.out.println(temp.getName() + "'s turn:");
-//查线程
-            System.out.println("Current thread: " + Thread.currentThread().getName());
+
+            // System.out.println("Current thread: " + Thread.currentThread().getName());
 
             System.out.println("Pip:" + temp.getPip(board) + ", Time elapsed: "
                     + formattedTime(System.currentTimeMillis() - gameStartTime));
             boolean quit = false;
             while (true) {
 
-                // 在玩家回合开始前检查是否有加倍提议
+
+                // check if there is a double offer before the player's turn
                 if (doublingValue > 1 && temp != doublingOwner) {
                     System.out.println("Double has been offered. Do you accept? (yes/no)");
                     String response = scanner.nextLine().toLowerCase();
@@ -438,7 +465,8 @@ public class Game {
                         break;
                     } else if (response.equalsIgnoreCase("yes")) {
                         acceptDouble(temp);
-                        // 如果接受加倍，允许当前玩家再次提出加倍
+
+                        // if accept double, allow the current player to double again
                         System.out.print("Do you want to double? (yes/no): ");
                         response = scanner.nextLine();
                         if (response.equalsIgnoreCase("yes")) {
@@ -455,27 +483,20 @@ public class Game {
 
                 System.out.print("Enter command:");
                 String command = scanner.nextLine();
-                if(!gameRunning){
-                    //stopGame();
+                if (!gameRunning) {
+                    // stopGame();
                     try {
-                        Thread.sleep(100); // 举例
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt(); // 重新设置中断状态
+                        Thread.currentThread().interrupt();
 
-                        break; // 退出当前方法或循环
+                        break;
                     }
 
-                    // System.out.println("stop at rungame");
-                    // //Thread.currentThread().interrupt();
-                    // if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
-                    //     System.out.println("Game thread has stopped.");
-                    // }
-                    //promptNextMatch();
                     break;
                 }
 
                 String upperCaseCommand = command.toUpperCase();
-
 
                 Matcher diceMatcher = validateDice(upperCaseCommand);
                 Matcher fileMatcher = validateFile(command);
@@ -504,12 +525,14 @@ public class Game {
                 }
 
                 else if (upperCaseCommand.equalsIgnoreCase("HINT")) {
-                    // 从dice中取出数目，存入arraylist
+
+                    // take out the number from dice and store it in arraylist
                     ArrayList<Integer> dices = new ArrayList<Integer>();
                     int dice1 = dice.getDice1();
                     int dice2 = dice.getDice2();
                     if (dice1 == dice2) {
-                        // 当double的情况发生
+
+                        //when double happens
                         for (int i = 0; i < 4; i++) {
                             dices.add(dice1);
                         }
@@ -518,12 +541,15 @@ public class Game {
                         dices.add(dice2);
                     }
                     while (dices.size() > 0) {
-                        // 循环，让用户用掉所有的骰子
+
+                        // loop, let the user use all the dices
                         int index = -1;
                         while (true) {
-                            // 循环，展示所有可能存在的移动，直到读入合法的命令
+
+                            // loop, display all possible moves, until read in a legal command
                             displayMoves(temp, dices, board);
-                            // 如果没有合法移动，强制跳过
+
+                            // if there is no legal move, force to skip
                             if (moves.size() == 0) {
                                 System.out.print("No valid moves available. Skipping your turn\n");
                                 dices.clear();
@@ -553,12 +579,15 @@ public class Game {
                             break;
                         } else {
                             if (dices.size() != 0) {
-                                // 获取index，读取 起点 - 目的地 的Direction
+
+                                // get index, read start - destination Direction
                                 Direction move = moves.get(index);
                                 // System.out.println(move.getStart() + "-" +move.getDestination());
-                                // 移动棋子，并且从dices删除用过的骰子
+
+                                // move the checker, and remove the used dice from dices
                                 moveChecker(board, move.getStart(), move.getDestination(), temp);
-                                // 删除原有的选项，下一次循环重新检测可能的移动
+
+                                // remove the used choice from dices
                                 moves.clear();
                                 board.displayBoard();
                                 removeInteger(dices, move.getStart(), move.getDestination(), temp);
@@ -581,8 +610,8 @@ public class Game {
             } else {
                 temp = player2;
             }
-            // 当一场游戏结束
-            updateScores(); // 更新积分
+            // when the player's turn is over, clear the moves
+            updateScores(); // Update scores after each turn
 
         }
     }
@@ -600,8 +629,8 @@ public class Game {
             } else {
                 finalScore = winScore(board, temp);
             }
-            player1.addScore(finalScore); // 玩家1赢得这局游戏
-            // 提示是否开始下一场比赛
+            player1.addScore(finalScore); // player1 wins the game
+            // hint if start next match
             promptNextMatch();
         } else if (board.getBoard(25) == -15) {
             if (doublingOwner == player2) {
@@ -609,12 +638,12 @@ public class Game {
             } else {
                 finalScore = winScore(board, temp);
             }
-            player2.addScore(finalScore); // 玩家2赢得这局游戏
-            // 提示是否开始下一场比赛
+            player2.addScore(finalScore); // player2 wins the game
+
             promptNextMatch();
         }
 
-        // 检查是否有玩家赢得了锦标赛
+        // check if any player wins the tournament
         matchControl();
     }
 
@@ -625,13 +654,13 @@ public class Game {
     }
 
     private void promptNextMatch() {
-        while(true){
+        while (true) {
             System.out.print("Start next match? (yes/no): ");
             Scanner scanner = new Scanner(System.in);
             if (scanner.nextLine().equalsIgnoreCase("yes")) {
 
-                //scanner.close();
-                // 重置游戏状态，开始新的一局
+                // scanner.close();
+                // resetGame
                 resetGame();
                 break;
 
@@ -645,13 +674,7 @@ public class Game {
     }
 
     private void resetGame() {
-        // 重置游戏状态，准备新的一局
-        // 例如，重置棋盘、骰子等
-        // 可能需要重新初始化玩家或其他游戏元素
-        //stopGame(); // 停止当前运行的游戏线程
-        // 重置游戏状态...
-        //gameRunning = true; // 重置游戏运行标志
-
+        // reset the game
         System.out.println("A new game start");
         System.out.println("score: " + player1.getScore() + " " + player2.getScore());
 
@@ -683,17 +706,13 @@ public class Game {
         if (doublingOwner == player1) {
             player1.addScore(finalScore);
         } else {
-            player2.addScore(finalScore); // 玩家2赢得这局游戏
-            // 提示是否开始下一场比赛
+            player2.addScore(finalScore); // player2 wins the game
+
         }
-        // 检查是否有玩家赢得了锦标赛
+        // check if any player wins the tournament
         matchControl();
         promptNextMatch();
 
-        // System.out.println("A new game start");
-
-        // System.out.println("score: "+player1.getScore()+" "+player2.getScore());
-        // resetGame();
     }
 
     private void announceWinner() {
@@ -712,19 +731,22 @@ public class Game {
     }
 
     public int winScore(Board board, Player temp) {
-        // 玩家O获胜
+        // playerO wins
         if (temp.getChecker() == "o") {
-            // 当对手拿到一个棋子，single
+
+            // when the opponent gets a checker, single
             if (board.getBoard(25) < 0) {
                 // System.out.println("Single");
                 return 1;
             } else {
-                // 当对手在横轴内存在棋子
+
+                // when the opponent has checker in the horizontal axis
                 if (board.getLostX() > 0) {
                     // System.out.println("Gammon");
                     return 2;
                 } else {
-                    // 当对手在禁区内存在棋子
+
+                    // when the opponent has checker in the forbidden area
                     for (int i = 1; i < 7; i++) {
                         if (board.getBoard(i) < 0) {
                             // System.out.println("Gammon");
@@ -736,19 +758,21 @@ public class Game {
                 }
             }
         }
-        // 玩家X获胜
+        // playerX wins
         else {
-            // 当对手拿到一个棋子，single
+            // when the opponent gets a checker, single
             if (board.getBoard(0) > 0) {
                 // System.out.println("Single");
                 return 1;
             } else {
-                // 当对手在横轴内存在棋子
+
+                // when the opponent has checker in the horizontal axis
                 if (board.getLostO() > 0) {
                     // System.out.println("Gammon");
                     return 2;
                 } else {
-                    // 当对手在禁区内存在棋子
+
+                    // when the opponent has checker in the forbidden area
                     for (int i = 19; i < 25; i++) {
                         if (board.getBoard(i) < 0) {
                             // System.out.println("Gammon");

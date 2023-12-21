@@ -2,10 +2,10 @@ import java.util.Arrays;
 
 public class Board {
     private int[] board;
-    //为失去的棋子计数
+    // count the number of lost checkers
     private int lostO;
     private int lostX;
-    //初始化棋盘，o为正数，x为负数
+    // initialize the board, o is positive, x is negative
     public Board() {
         board = new int[26];
         for (int i = 0; i < 26 ;i++){
@@ -31,11 +31,11 @@ public class Board {
 
     private void displayPips(int[] board) {
         String output = "";
-        //找大最大的行数，循环每一行
+        // find the max row number, loop each row
         for(int j =0; j < Math.max(findMaxAbsoluteValue(Arrays.copyOfRange(board,13 ,26)),lostX); j++){
-            //循环每一列
+            // loop each column
             for (int i = 13; i <= 25; i++){
-                //如果是o
+                //if the checker is o
                 if(board[i] > 0){
                     if (j < Math.abs(board[i])){
                         output +="o ";
@@ -45,7 +45,7 @@ public class Board {
                     }
                 }
                 else{
-                    //如果为空
+                    //if the checker is empty
                     if(board[i] == 0){
                         if(j == 0 && i != 25){
                             output += "|   ";
@@ -54,7 +54,7 @@ public class Board {
                             output += "    ";
                         }
                     }
-                    //如果是x
+                    //if the checker is x
                     else{
                         if (j < Math.abs(board[i])){
                             output +="x ";
@@ -64,7 +64,7 @@ public class Board {
                         }
                     }
                 }
-                //保持对齐
+                //keep the space between each checker
                 if (Math.abs(board[i]) > 9){
                     output += " ";
                 }
@@ -73,7 +73,7 @@ public class Board {
                         output += "  ";
                     }
                 }
-                //考虑被吃掉的棋子
+                //consider the bar
                 if (i == 18){
                     if(j < lostX){
                         output += "x  ";
@@ -84,7 +84,7 @@ public class Board {
                 }
                 else
                 {
-                    //考虑到达终点的棋子
+                    //consider the off
                     if(i == 25){
                         output += "\n";
                     }
@@ -95,9 +95,9 @@ public class Board {
         output = "";
         for(int j =0; j < Math.max(findMaxAbsoluteValue(board),lostO); j++) {
             for (int i = 12; i >= 0; i--){
-                //如果棋子是o
+                //if the checker is o
                 if(board[i] > 0){
-                    //如果列数大于等于
+                    //if the checker is empty
                     if (j >= Math.max(findMaxAbsoluteValue(Arrays.copyOfRange(board,0 ,13)),lostO) - Math.abs(board[i])){
                         output +="o ";
                     }
