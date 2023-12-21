@@ -76,7 +76,7 @@ public class Game {
 
         while(true){
 
-            System.out.print("Enter the socre to win: ");
+            System.out.print("Enter the score to win: ");
 
             winningScore = scanner.nextInt();
             if(winningScore<5){
