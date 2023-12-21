@@ -114,4 +114,57 @@ class BoardTest {
         assertEquals(1, board.getBoard(20), "Position 20 should be decremented to 1");
     }
 
+    @Test
+    void testZeroIncrementsAndDecrements() {
+        // Test incrementing and decrementing by zero
+        board.setBoard(5, 3);
+        board.setBoard(5, board.getBoard(5) + 0);
+        assertEquals(3, board.getBoard(5), "Incrementing by zero should not change the value");
+        board.setBoard(5, board.getBoard(5) - 0);
+        assertEquals(3, board.getBoard(5), "Decrementing by zero should not change the value");
+    }
+
+    @Test
+    void testNegativeBoardValueSetting() {
+        // Test setting negative values on the board
+        board.setBoard(7, -2);
+        assertEquals(-2, board.getBoard(7), "Position 7 should be set to -2");
+        board.setBoard(11, -5);
+        assertEquals(-5, board.getBoard(11), "Position 11 should be set to -5");
+    }
+
+    @Test
+    void testPositiveBoardValueSetting() {
+        // Test setting positive values on the board
+        board.setBoard(2, 1);
+        assertEquals(1, board.getBoard(2), "Position 2 should be set to 1");
+        board.setBoard(9, 4);
+        assertEquals(4, board.getBoard(9), "Position 9 should be set to 4");
+    }
+
+    @Test
+    void testBoardClearingSpecificPositions() {
+        // Test clearing specific positions on the board
+        board.setBoard(14, 3);
+        board.setBoard(14, 0);
+        assertEquals(0, board.getBoard(14), "Position 14 should be cleared to 0");
+        board.setBoard(22, -2);
+        board.setBoard(22, 0);
+        assertEquals(0, board.getBoard(22), "Position 22 should be cleared to 0");
+    }
+
+    @Test
+    void testBoardStateAfterVariousChanges() {
+        // Test the board state after various changes
+        board.setBoard(1, 2);
+        board.setBoard(23, -3);
+        board.addLostO();
+        board.addLostX();
+        assertEquals(2, board.getBoard(1), "Position 1 should have 2");
+        assertEquals(-3, board.getBoard(23), "Position 23 should have -3");
+        assertEquals(1, board.getLostO(), "LostO counter should be 1");
+        assertEquals(1, board.getLostX(), "LostX counter should be 1");
+        // Reset or clear the board as necessary for further tests
+    }
+
 }
