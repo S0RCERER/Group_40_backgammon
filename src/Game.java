@@ -25,7 +25,7 @@ public class Game {
     private volatile boolean gameRunning; // 控制游戏线程运行的标志
     private Thread timeCheckThread; // 检查游戏时间的线程
 
-   // private Scanner scanner;
+    // private Scanner scanner;
 
     public Game() {
         // Existing initialization code...
@@ -65,7 +65,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         // Scanner scanner2 = new Scanner(System.in);
 
-        //scanner = new Scanner(System.in);
+        // scanner = new Scanner(System.in);
 
         gameRunning = true; // 初始化时将游戏运行标志设为 true
 
@@ -106,8 +106,8 @@ public class Game {
         }
 
         if (select.equalsIgnoreCase("A")) {
-            //gameDuration = 10 * 60 * 1000;
-             gameDuration = 3000 ;// 测试3秒
+            // gameDuration = 10 * 60 * 1000;
+            gameDuration = 3000;// 测试3秒
         } else if (select.equalsIgnoreCase("B")) {
             gameDuration = 30 * 60 * 1000;
         } else {
@@ -122,8 +122,6 @@ public class Game {
 
     public void goGame() {
 
-        
-
         doublingValue = 1;
         dice = new Dice();
         board = new Board();
@@ -135,25 +133,25 @@ public class Game {
         }
         board.displayBoard();
 
-        //gameStartTime = System.currentTimeMillis();
+        // gameStartTime = System.currentTimeMillis();
 
         if (gameThread != null) {
-        stopGame();
+            stopGame();
         }
-        
-        gameRunning = true;
-        //if (!gameThread.isAlive()) {
-            System.out.println(gameRunning);
-            gameThread = new Thread(this::runGame, "GameThread-" + System.currentTimeMillis());
-            
-            gameThread.start();
-       //} 
-      // if (!timeCheckThread.isAlive()) {
-            System.out.println("Starting time check thread...");
-            timeCheckThread = new Thread(this::checkGameTime, "TimeCheckThread-" + System.currentTimeMillis());
 
-            timeCheckThread.start();
-      //  }
+        gameRunning = true;
+        // if (!gameThread.isAlive()) {
+        // System.out.println(gameRunning);
+        gameThread = new Thread(this::runGame, "GameThread-" + System.currentTimeMillis());
+
+        gameThread.start();
+        // }
+        // if (!timeCheckThread.isAlive()) {
+        // System.out.println("Starting time check thread...");
+        timeCheckThread = new Thread(this::checkGameTime, "TimeCheckThread-" + System.currentTimeMillis());
+
+        timeCheckThread.start();
+        // }
 
     }
 
@@ -340,13 +338,13 @@ public class Game {
         while (gameRunning) {
             if (gameDuration != -1 && isTimeUp()) {
                 System.out.println("Time's up! Game over.");
-                 //System.exit(0);
-                 
-                 //stopGame();
-                 gameRunning=false;
+                // System.exit(0);
+
+                // stopGame();
+                gameRunning = false;
 
                 promptNextMatch();
-                 break;
+                break;
             }
 
             try {
@@ -366,42 +364,32 @@ public class Game {
     }
 
     public void stopGame() {
-        System.out.println("Stopping game...");
+        // System.out.println("Stopping game...");
         gameRunning = false; // 设置游戏运行标志为 false
-        //if (gameThread != null) {
-    //         this.gameThread.interrupt(); // 尝试中断游戏线程
-    //         if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
-    //             System.out.println("Game thread has stopped.");
-    //         }
-    //     // }
-    //     //if (timeCheckThread != null) {
-    //         this.timeCheckThread.interrupt(); // 尝试中断游戏线程
-    //    // }
 
+        // if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
+        // System.out.println("Game thread has stopped.");
+        // }
 
-    if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
-        System.out.println("Game thread has stopped.");
-    }
-
-       if (gameThread != null && gameThread.isAlive()) {
-        gameThread.interrupt();
-        try {
-            gameThread.join(); // 等待线程结束
-        } catch (InterruptedException e) {
-            // 处理中断逻辑，如果需要
-            Thread.currentThread().interrupt();
+        if (gameThread != null && gameThread.isAlive()) {
+            gameThread.interrupt();
+            try {
+                gameThread.join(); // 等待线程结束
+            } catch (InterruptedException e) {
+                // 处理中断逻辑，如果需要
+                Thread.currentThread().interrupt();
+            }
         }
-    }
 
-    if (timeCheckThread != null && timeCheckThread.isAlive()) {
-        timeCheckThread.interrupt();
-        try {
-            timeCheckThread.join(); // 等待线程结束
-        } catch (InterruptedException e) {
-            // 处理中断逻辑，如果需要
-            Thread.currentThread().interrupt();
+        if (timeCheckThread != null && timeCheckThread.isAlive()) {
+            timeCheckThread.interrupt();
+            try {
+                timeCheckThread.join(); // 等待线程结束
+            } catch (InterruptedException e) {
+                // 处理中断逻辑，如果需要
+                Thread.currentThread().interrupt();
+            }
         }
-    }
 
     }
 
@@ -413,16 +401,13 @@ public class Game {
 
     private void runGame() {
 
-
-
-        
         gameStartTime = System.currentTimeMillis();
         Scanner scanner = new Scanner(System.in);
-        //this.scanner = new Scanner(System.in);
+        // this.scanner = new Scanner(System.in);
         while (!isGameOver() && gameRunning) {
             System.out.println(temp.getName() + "'s turn:");
-//查线程
-            System.out.println("Current thread: " + Thread.currentThread().getName());
+            // 查线程
+            // System.out.println("Current thread: " + Thread.currentThread().getName());
 
             System.out.println("Pip:" + temp.getPip(board) + ", Time elapsed: "
                     + formattedTime(System.currentTimeMillis() - gameStartTime));
@@ -455,27 +440,26 @@ public class Game {
 
                 System.out.print("Enter command:");
                 String command = scanner.nextLine();
-                if(!gameRunning){
-                    //stopGame();
+                if (!gameRunning) {
+                    // stopGame();
                     try {
-    Thread.sleep(100); // 举例
-} catch (InterruptedException e) {
-    Thread.currentThread().interrupt(); // 重新设置中断状态
-    
-    break; // 退出当前方法或循环
-}
+                        Thread.sleep(100); // 举例
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt(); // 重新设置中断状态
+
+                        break; // 退出当前方法或循环
+                    }
 
                     // System.out.println("stop at rungame");
                     // //Thread.currentThread().interrupt();
                     // if (gameThread != null && gameThread.getState() == Thread.State.TERMINATED) {
-                    //     System.out.println("Game thread has stopped.");
+                    // System.out.println("Game thread has stopped.");
                     // }
-                    //promptNextMatch();
+                    // promptNextMatch();
                     break;
                 }
-                
-                String upperCaseCommand = command.toUpperCase();
 
+                String upperCaseCommand = command.toUpperCase();
 
                 Matcher diceMatcher = validateDice(upperCaseCommand);
                 Matcher fileMatcher = validateFile(command);
@@ -625,32 +609,32 @@ public class Game {
     }
 
     private void promptNextMatch() {
-        while(true){
-        System.out.print("Start next match? (yes/no): ");
-        Scanner scanner = new Scanner(System.in);
-        if (scanner.nextLine().equalsIgnoreCase("yes")) {
-            
-            //scanner.close();
-            // 重置游戏状态，开始新的一局
-            resetGame();
-            break;
+        while (true) {
+            System.out.print("Start next match? (yes/no): ");
+            Scanner scanner = new Scanner(System.in);
+            if (scanner.nextLine().equalsIgnoreCase("yes")) {
 
-        } else if (scanner.nextLine().equalsIgnoreCase("no")) {
-            System.out.println(temp.getName() + " Exiting game.");
-            System.exit(0);
-        } else {
-            System.out.println("Invalid command.");
+                // scanner.close();
+                // 重置游戏状态，开始新的一局
+                resetGame();
+                break;
+
+            } else if (scanner.nextLine().equalsIgnoreCase("no")) {
+                System.out.println(temp.getName() + " Exiting game.");
+                System.exit(0);
+            } else {
+                System.out.println("Invalid command.");
+            }
         }
-    }
     }
 
     private void resetGame() {
         // 重置游戏状态，准备新的一局
         // 例如，重置棋盘、骰子等
         // 可能需要重新初始化玩家或其他游戏元素
-        //stopGame(); // 停止当前运行的游戏线程
+        // stopGame(); // 停止当前运行的游戏线程
         // 重置游戏状态...
-        //gameRunning = true; // 重置游戏运行标志
+        // gameRunning = true; // 重置游戏运行标志
 
         System.out.println("A new game start");
         System.out.println("score: " + player1.getScore() + " " + player2.getScore());
