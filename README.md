@@ -21,7 +21,7 @@ This is a backgammon game run in terminal, implemented using Java.
 ![simg2](Screenshots/sequence.png)
 
 ## Setup Requirements
-run on Java version 1.8
+run on Java version 20
 
 ## Development Environment
 jdk-20
