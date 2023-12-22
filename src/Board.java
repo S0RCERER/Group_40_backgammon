@@ -2,9 +2,11 @@ import java.util.Arrays;
 
 public class Board {
     private int[] board;
+
     // count the number of lost checkers
     private int lostO;
     private int lostX;
+
     // initialize the board, o is positive, x is negative
     public Board() {
         board = new int[26];
@@ -19,8 +21,12 @@ public class Board {
         board[8] = 3;
         board[6] = 5;
         board[1] = -2;
-        lostO = 0;
-        lostX = 0;
+        // board[0] = 14;
+        // board[25] = -14;
+        // board[1] = 1;
+        // board[24] = -1;
+        // lostO = 0;
+        // lostX = 0;
     }
 
     public void displayBoard() {
@@ -31,6 +37,7 @@ public class Board {
 
     private void displayPips(int[] board) {
         String output = "";
+
         // find the max row number, loop each row
         for(int j =0; j < Math.max(findMaxAbsoluteValue(Arrays.copyOfRange(board,13 ,26)),lostX); j++){
             // loop each column

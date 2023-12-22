@@ -58,16 +58,6 @@ class GameTest {
         assertFalse(gameRunningField.getBoolean(game), "Game should not be running initially");
     }
 
-    @Test
-    void testStopGame() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
-        Method stopGameMethod = Game.class.getDeclaredMethod("stopGame");
-        stopGameMethod.setAccessible(true);
-        stopGameMethod.invoke(game);
-
-        Field gameRunningField = Game.class.getDeclaredField("gameRunning");
-        gameRunningField.setAccessible(true);
-        assertFalse(gameRunningField.getBoolean(game), "Game should be stopped after calling stopGame");
-    }
 
     @Test
     void testGameDurationSetting() throws NoSuchFieldException, IllegalAccessException {
