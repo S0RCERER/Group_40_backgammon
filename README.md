@@ -14,11 +14,11 @@ LING FENG
 This is a backgammon game run in terminal, implemented using Java.
 
 ## Class Diagram
-![simg1](screenshots/class.png)
+![simg1](Screenshots/class.png)
 
 ## Sequence Diagram
 
-![simg2](screenshots/sequence.png)
+![simg2](Screenshots/sequence.png)
 
 ## Setup Requirements
 run on Java version 1.8
