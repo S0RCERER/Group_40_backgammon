@@ -13,20 +13,20 @@ public class Board {
         for (int i = 0; i < 26 ;i++){
             board[i] = 0;
         }
-        // board[24] = 2;
-        // board[19] = -5;
-        // board[17] = -3;
-        // board[13] = 5;
-        // board[12] = -5;
-        // board[8] = 3;
-        // board[6] = 5;
-        // board[1] = -2;
-        board[0] = 14;
-        board[25] = -14;
-        board[1] = 1;
-        board[24] = -1;
-        lostO = 0;
-        lostX = 0;
+        board[24] = 2;
+        board[19] = -5;
+        board[17] = -3;
+        board[13] = 5;
+        board[12] = -5;
+        board[8] = 3;
+        board[6] = 5;
+        board[1] = -2;
+        // board[0] = 14;
+        // board[25] = -14;
+        // board[1] = 1;
+        // board[24] = -1;
+        // lostO = 0;
+        // lostX = 0;
     }
 
     public void displayBoard() {

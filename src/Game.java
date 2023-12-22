@@ -164,10 +164,12 @@ public class Game {
         board.displayBoard();
 
 
-        if (gameThread != null) {
-            stopGame();
-        }
+        // if (gameThread != null) {
+        //     stopGame();
 
+        // }
+
+if(gameThread==null){
         gameRunning = true;
 
         gameThread = new Thread(this::runGame, "GameThread-" + System.currentTimeMillis());
@@ -177,7 +179,7 @@ public class Game {
         timeCheckThread = new Thread(this::checkGameTime, "TimeCheckThread-" + System.currentTimeMillis());
 
         timeCheckThread.start();
-        
+}
 
     }
 
@@ -405,26 +407,23 @@ public class Game {
         // System.out.println("Stopping game...");
         gameRunning = false; 
 
-        if (gameThread != null && gameThread.isAlive()) {
-            gameThread.interrupt();
+        // try {
+        //     Thread.sleep(100); 
+        // } catch (InterruptedException e) {
+        //     gameThread.interrupt(); 
+        //     timeCheckThread.interrupt(); 
+        // }
+
+        if(gameThread != null) {
             try {
-                gameThread.join(); // wait for thread to finish
+                //gameThread.join();
+                Thread.sleep(100);
             } catch (InterruptedException e) {
-                // handle interrupt logic, if needed
-                Thread.currentThread().interrupt();
+                Thread.currentThread().interrupt(); 
             }
         }
 
-        if (timeCheckThread != null && timeCheckThread.isAlive()) {
-            timeCheckThread.interrupt();
-            try {
-                timeCheckThread.join(); 
-            } catch (InterruptedException e) {
-                
-                Thread.currentThread().interrupt();
-            }
-        }
-
+        gameRunning = true; 
     }
 
     private boolean isTimeUp() {
@@ -612,7 +611,7 @@ public class Game {
             }
             // when the player's turn is over, clear the moves
             updateScores(); // Update scores after each turn
-
+            
         }
     }
 
@@ -621,7 +620,7 @@ public class Game {
         int finalScore = 1;
 
         if (board.getBoard(0) == 15) {
-
+            gameRunning = false;
             // double owner
             if (doublingOwner == player1) {
 
@@ -630,16 +629,18 @@ public class Game {
                 finalScore = winScore(board, temp);
             }
             player1.addScore(finalScore); // player1 wins the game
+            
             // hint if start next match
             promptNextMatch();
         } else if (board.getBoard(25) == -15) {
+            gameRunning = false;
             if (doublingOwner == player2) {
                 finalScore = doublingValue * winScore(board, temp);
             } else {
                 finalScore = winScore(board, temp);
             }
             player2.addScore(finalScore); // player2 wins the game
-           
+            
             promptNextMatch();
         }
 
@@ -658,9 +659,13 @@ public class Game {
             System.out.print("Start next match? (yes/no): ");
             Scanner scanner = new Scanner(System.in);
             if (scanner.nextLine().equalsIgnoreCase("yes")) {
-
-                // scanner.close();
+                try {
+                    Thread.sleep(100); 
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); 
+                }
                 // resetGame
+                
                 resetGame();
                 break;
 
@@ -674,10 +679,16 @@ public class Game {
     }
 
     private void resetGame() {
+        stopGame();
         // reset the game
         System.out.println("A new game start");
         System.out.println("score: " + player1.getScore() + " " + player2.getScore());
-
+        try {
+            Thread.sleep(100); 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); 
+        }
+        
         this.goGame();
     }
 
